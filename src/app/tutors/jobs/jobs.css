@@ -1,0 +1,68 @@
+/* src/app/tutors/jobs/jobs.css */
+.job-board-container { padding-top: 3rem; padding-bottom: 4rem; min-height: calc(100vh - 72px); }
+.jobs-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.job-card { padding: 2rem; border: 1px solid rgba(249, 115, 22, 0.1); border-radius: 1.5rem; box-shadow: 0 10px 30px -5px rgba(249, 115, 22, 0.1); transition: var(--transition); }
+.job-card:hover { border-color: rgba(249, 115, 22, 0.4); box-shadow: 0 15px 40px -5px rgba(249, 115, 22, 0.15); transform: translateY(-2px); }
+.job-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 1rem 0; padding: 1.5rem; background: rgba(0,0,0,0.02); border-radius: 1rem; }
+.info-item { gap: 0.5rem; color: var(--text-main); font-size: 0.95rem; }
+.job-description { margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6; }
+.job-footer { border-top: 1px dashed rgba(253, 186, 116, 0.5); padding-top: 1rem; }
+@media (max-width: 768px) { .job-info-grid { grid-template-columns: 1fr; } }
+
+/* Shared Layout Styles */
+.content-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.filters-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 90px;
+  padding: 1.5rem;
+}
+
+.results-container {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .content-layout {
+    flex-direction: column;
+  }
+  .filters-sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+/* ComboBox Styles */
+.custom-combobox { position: relative; }
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  z-index: 100;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0 0 0;
+}
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.dropdown-item:hover {
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--primary);
+}
