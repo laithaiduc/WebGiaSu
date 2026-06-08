@@ -78,28 +78,101 @@ const MOCK_JOBS = [
 ];
 
 export default function JobBoard() {
-  const [jobs, setJobs] = useState<any[]>(MOCK_JOBS);
+  const [allJobs, setAllJobs] = useState<any[]>([]);
+  
+  // Filter states
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState("");
+  const [selectedFormat, setSelectedFormat] = useState("");
+  const [sortBy, setSortBy] = useState("Mới đăng nhất");
+
+  // Applied filter state
+  const [appliedFilters, setAppliedFilters] = useState({
+    subject: "",
+    grade: "",
+    format: ""
+  });
 
   useEffect(() => {
     const saved = localStorage.getItem('studentPosts');
+    let localApproved: any[] = [];
     if (saved) {
       const allPosts = JSON.parse(saved);
-      const approvedPosts = allPosts.filter((p: any) => p.status === 'Đang tìm gia sư').map((p: any) => ({
+      localApproved = allPosts.filter((p: any) => p.status === 'Đang tìm gia sư').map((p: any) => ({
         id: p.id,
         title: p.title,
         isNew: true,
         subject: p.subject,
+        grade: p.grade || "Khác",
         format: p.format,
         time: p.time,
         price: p.price,
         reqs: p.reqs || "Không có yêu cầu thêm.",
         authorName: p.authorName || "Học sinh ẩn danh",
-        authorId: 1,
+        authorId: p.authorId || 1,
         postedAt: "Mới đây"
       }));
-      setJobs([...approvedPosts, ...MOCK_JOBS]);
     }
+
+    const baseMockJobs = MOCK_JOBS.map(job => {
+      let grade = "Khác";
+      if (job.id === 1) grade = "Người đi làm";
+      if (job.id === 2) grade = "Lớp 10";
+      if (job.id === 3) grade = "Người đi làm";
+      if (job.id === 4) grade = "Mầm non";
+      if (job.id === 5) grade = "Lớp 12";
+      return { ...job, grade };
+    });
+
+    setAllJobs([...localApproved, ...baseMockJobs]);
   }, []);
+
+  const handleApply = () => {
+    setAppliedFilters({
+      subject: selectedSubject,
+      grade: selectedGrade,
+      format: selectedFormat
+    });
+  };
+
+  const handleReset = () => {
+    setSelectedSubject("");
+    setSelectedGrade("");
+    setSelectedFormat("");
+    setAppliedFilters({
+      subject: "",
+      grade: "",
+      format: ""
+    });
+  };
+
+  // Filter logic
+  let filteredJobs = allJobs.filter(job => {
+    const subjectMatch = !appliedFilters.subject || 
+      job.subject.toLowerCase().includes(appliedFilters.subject.toLowerCase()) ||
+      job.title.toLowerCase().includes(appliedFilters.subject.toLowerCase());
+
+    const gradeMatch = !appliedFilters.grade || 
+      (job.grade && job.grade.toLowerCase() === appliedFilters.grade.toLowerCase()) ||
+      job.title.toLowerCase().includes(appliedFilters.grade.toLowerCase());
+
+    const formatMatch = !appliedFilters.format || 
+      job.format.toLowerCase().includes(appliedFilters.format.toLowerCase());
+
+    return subjectMatch && gradeMatch && formatMatch;
+  });
+
+  // Sorting logic
+  if (sortBy === "Học phí cao nhất") {
+    filteredJobs = [...filteredJobs].sort((a, b) => {
+      const priceA = parseInt(a.price.replace(/\D/g, '')) || 0;
+      const priceB = parseInt(b.price.replace(/\D/g, '')) || 0;
+      return priceB - priceA;
+    });
+  } else {
+    // Mới đăng nhất: sort by ID descending
+    filteredJobs = [...filteredJobs].sort((a, b) => b.id - a.id);
+  }
 
   return (
     <div className="container job-board-container">
@@ -113,51 +186,57 @@ export default function JobBoard() {
         <aside className="filters-sidebar glass" style={{borderRadius: '1.5rem', border: '1px solid rgba(249, 115, 22, 0.1)', boxShadow: '0 10px 30px -5px rgba(249, 115, 22, 0.1)'}}>
           <div className="flex-between" style={{marginBottom: '1.5rem'}}>
             <h3 className="flex-center" style={{gap: '0.5rem'}}><Filter size={20} /> Bộ lọc Lớp</h3>
-            <button className="text-primary" style={{background:'none', border:'none', cursor:'pointer', fontWeight: 'bold'}}>Xóa lọc</button>
+            <button className="text-primary" onClick={handleReset} style={{background:'none', border:'none', cursor:'pointer', fontWeight: 'bold'}}>Xóa lọc</button>
           </div>
           
-          <ComboBox options={SUBJECTS} placeholder="Ví dụ: Toán, Lý..." label="Môn học (Gõ để tìm)" />
-          <ComboBox options={GRADES} placeholder="Ví dụ: Lớp 10..." label="Lớp (Gõ để tìm)" />
-          <ComboBox options={FORMATS} placeholder="Ví dụ: Online..." label="Hình thức học (Gõ để tìm)" />
+          <ComboBox options={SUBJECTS} placeholder="Ví dụ: Toán, Lý..." label="Môn học (Gõ để tìm)" value={selectedSubject} onChange={(val) => setSelectedSubject(val)} />
+          <ComboBox options={GRADES} placeholder="Ví dụ: Lớp 10..." label="Lớp (Gõ để tìm)" value={selectedGrade} onChange={(val) => setSelectedGrade(val)} />
+          <ComboBox options={FORMATS} placeholder="Ví dụ: Online..." label="Hình thức học (Gõ để tìm)" value={selectedFormat} onChange={(val) => setSelectedFormat(val)} />
           
-          <button className="btn btn-primary" style={{width: '100%', marginTop: '1rem'}}>Lọc kết quả</button>
+          <button className="btn btn-primary" onClick={handleApply} style={{width: '100%', marginTop: '1rem'}}>Lọc kết quả</button>
         </aside>
 
         {/* Jobs List */}
         <main className="results-container">
           <div className="flex-between" style={{marginBottom: '1.5rem'}}>
-            <p>Đang hiển thị <strong>{jobs.length}</strong> lớp học phù hợp</p>
-            <select className="input-field" style={{width: 'auto'}}>
+            <p>Đang hiển thị <strong>{filteredJobs.length}</strong> lớp học phù hợp</p>
+            <select className="input-field" style={{width: 'auto'}} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option>Mới đăng nhất</option>
               <option>Học phí cao nhất</option>
             </select>
           </div>
 
           <div className="jobs-list">
-            {jobs.map((job) => (
-              <div key={job.id} className="job-card glass">
-                <div className="flex-between">
-                  <h2 style={{color: '#D94625', fontSize: '1.4rem'}}>{job.title}</h2>
-                  {job.isNew && <span className="tag" style={{background: 'transparent', border: '1px solid var(--border)'}}>Mới</span>}
-                </div>
-                
-                <div className="job-info-grid">
-                  <div className="info-item flex-center"><Briefcase size={16} /> <strong>Môn:</strong> {job.subject}</div>
-                  <div className="info-item flex-center"><MapPin size={16} /> <strong>Hình thức:</strong> {job.format}</div>
-                  <div className="info-item flex-center"><Clock size={16} /> <strong>Thời gian:</strong> {job.time}</div>
-                  <div className="info-item flex-center" style={{color: 'var(--primary)', fontWeight: 'bold'}}>{job.price}</div>
-                </div>
-                
-                <p className="job-description">
-                  <strong>Yêu cầu:</strong> {job.reqs}
-                </p>
-                
-                <div className="job-footer flex-between">
-                  <span className="text-muted" style={{fontSize: '0.85rem'}}>Đăng bởi: <Link href={`/students/${job.authorId}`} style={{fontWeight: 600, color: 'var(--primary)', textDecoration: 'none'}}>{job.authorName}</Link> - {job.postedAt}</span>
-                  <Link href={`/students/${job.authorId}`} className="btn btn-primary flex-center" style={{gap: '0.5rem', textDecoration: 'none'}}>Xem chi tiết</Link>
-                </div>
+            {filteredJobs.length === 0 ? (
+              <div style={{textAlign: 'center', padding: '3rem', color: 'var(--text-muted)'}}>
+                <p>Không tìm thấy lớp học nào phù hợp với bộ lọc.</p>
               </div>
-            ))}
+            ) : (
+              filteredJobs.map((job) => (
+                <div key={job.id} className="job-card glass">
+                  <div className="flex-between">
+                    <h2 style={{color: '#D94625', fontSize: '1.4rem'}}>{job.title}</h2>
+                    {job.isNew && <span className="tag" style={{background: 'transparent', border: '1px solid var(--border)'}}>Mới</span>}
+                  </div>
+                  
+                  <div className="job-info-grid">
+                    <div className="info-item flex-center"><Briefcase size={16} /> <strong>Môn:</strong> {job.subject}</div>
+                    <div className="info-item flex-center"><MapPin size={16} /> <strong>Hình thức:</strong> {job.format}</div>
+                    <div className="info-item flex-center"><Clock size={16} /> <strong>Thời gian:</strong> {job.time}</div>
+                    <div className="info-item flex-center" style={{color: 'var(--primary)', fontWeight: 'bold'}}>{job.price}</div>
+                  </div>
+                  
+                  <p className="job-description">
+                    <strong>Yêu cầu:</strong> {job.reqs}
+                  </p>
+                  
+                  <div className="job-footer flex-between">
+                    <span className="text-muted" style={{fontSize: '0.85rem'}}>Đăng bởi: <Link href={`/students/${job.authorId}`} style={{fontWeight: 600, color: 'var(--primary)', textDecoration: 'none'}}>{job.authorName}</Link> - {job.postedAt}</span>
+                    <Link href={`/students/${job.authorId}`} className="btn btn-primary flex-center" style={{gap: '0.5rem', textDecoration: 'none'}}>Xem chi tiết</Link>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </main>
       </div>

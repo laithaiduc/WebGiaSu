@@ -1,6 +1,6 @@
 "use client";
-import { useState } from 'react';
-import { Star, MapPin, Briefcase, Award, CheckCircle, Heart, MessageCircle, X, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, MapPin, Briefcase, Award, CheckCircle, Heart, MessageCircle, X, Send, Phone, Users } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 import RatingBox from '@/components/reviews/RatingBox';
 
@@ -11,6 +11,33 @@ export default function TutorProfilePublic() {
     { id: 1, text: 'Chào bạn, mình có thể giúp gì cho quá trình học tập của bạn không?', isUser: false }
   ]);
   const [inputValue, setInputValue] = useState('');
+
+  // Loaded tutor info
+  const [tutorName, setTutorName] = useState("Nguyễn Văn A");
+  const [tutorAvatar, setTutorAvatar] = useState("");
+  const [phone, setPhone] = useState("090••••4567");
+  const [gender, setGender] = useState("Nam");
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+    if (role === 'tutor') {
+      const savedName = localStorage.getItem('userName');
+      const savedAvatar = localStorage.getItem('userAvatar');
+      const savedPhone = localStorage.getItem('userPhone');
+      const savedGender = localStorage.getItem('userGender');
+      if (savedName) setTutorName(savedName);
+      if (savedAvatar) setTutorAvatar(savedAvatar);
+      if (savedGender) setGender(savedGender);
+      if (savedPhone) {
+        const clean = savedPhone.replace(/\s+/g, '');
+        if (clean.length > 7) {
+          setPhone(clean.substring(0, 3) + '••••' + clean.substring(clean.length - 4));
+        } else {
+          setPhone(savedPhone);
+        }
+      }
+    }
+  }, []);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -30,11 +57,17 @@ export default function TutorProfilePublic() {
         <div style={{flex: 1}}>
           {/* Header Info */}
           <div className="card glass" style={{padding: '2rem', marginBottom: '2rem', display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
-            <div style={{width: '100px', height: '100px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 800, flexShrink: 0}}>N</div>
+            {tutorAvatar ? (
+              <img src={tutorAvatar} alt="avatar" style={{width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)', background: 'transparent', flexShrink: 0}} />
+            ) : (
+              <div style={{width: '100px', height: '100px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 800, flexShrink: 0}}>
+                {tutorName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div style={{flex: 1}}>
               <div className="flex-between">
                 <h1 style={{color: '#D94625', fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                  Nguyễn Văn A <span title="Đã xác thực" style={{display: 'flex'}}><CheckCircle size={24} color="#10B981" /></span>
+                  {tutorName} <span title="Đã xác thực" style={{display: 'flex'}}><CheckCircle size={24} color="#10B981" /></span>
                 </h1>
                 <div className="flex-center" style={{gap: '0.5rem', background: 'rgba(245, 158, 11, 0.1)', color: '#D97706', padding: '0.5rem 1rem', borderRadius: '2rem', fontWeight: 700}}>
                   <Star fill="currentColor" size={20} /> 4.9 (12 đánh giá)
@@ -42,9 +75,11 @@ export default function TutorProfilePublic() {
               </div>
               <p className="text-muted" style={{fontSize: '1.1rem', marginTop: '0.25rem'}}>Sinh viên năm 3 - Đại học Bách Khoa TP.HCM</p>
               
-              <div style={{display: 'flex', gap: '1.5rem', marginTop: '1rem', color: 'var(--text-main)'}}>
+              <div style={{display: 'flex', gap: '1.5rem', marginTop: '1rem', color: 'var(--text-main)', flexWrap: 'wrap'}}>
                 <span className="flex-center" style={{gap: '0.5rem'}}><MapPin size={18} className="text-muted" /> TP.HCM</span>
                 <span className="flex-center" style={{gap: '0.5rem'}}><Briefcase size={18} className="text-muted" /> 3 năm kinh nghiệm</span>
+                <span className="flex-center" style={{gap: '0.5rem'}}><Users size={18} className="text-muted" /> {gender}</span>
+                <span className="flex-center" style={{gap: '0.5rem'}}><Phone size={18} className="text-muted" /> {phone}</span>
               </div>
             </div>
           </div>
@@ -120,6 +155,14 @@ export default function TutorProfilePublic() {
             <hr style={{margin: '1.5rem 0', border: 'none', borderTop: '1px dashed var(--border)'}} />
             
             <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+              <div className="flex-between">
+                <span className="text-muted">Giới tính:</span>
+                <strong>{gender}</strong>
+              </div>
+              <div className="flex-between">
+                <span className="text-muted">Số điện thoại:</span>
+                <strong>{phone}</strong>
+              </div>
               <div className="flex-between">
                 <span className="text-muted">Hình thức dạy:</span>
                 <strong>Online & Offline</strong>

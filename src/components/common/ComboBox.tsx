@@ -8,12 +8,22 @@ interface ComboBoxProps {
   label?: string;
   className?: string;
   inputClassName?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
-export default function ComboBox({ options, placeholder, label, className = "filter-group", inputClassName = "input-field" }: ComboBoxProps) {
-  const [query, setQuery] = useState("");
+export default function ComboBox({ options, placeholder, label, className = "filter-group", inputClassName = "input-field", value, onChange }: ComboBoxProps) {
+  const [internalQuery, setInternalQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const query = value !== undefined ? value : internalQuery;
+  
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalQuery(value);
+    }
+  }, [value]);
   
   const filteredOptions = query === "" 
     ? options 
@@ -30,6 +40,24 @@ export default function ComboBox({ options, placeholder, label, className = "fil
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleInputChange = (val: string) => {
+    if (onChange) {
+      onChange(val);
+    } else {
+      setInternalQuery(val);
+    }
+    setIsOpen(true);
+  };
+
+  const handleOptionSelect = (opt: string) => {
+    if (onChange) {
+      onChange(opt);
+    } else {
+      setInternalQuery(opt);
+    }
+    setIsOpen(false);
+  };
+
   return (
     <div className={`${className} custom-combobox`} ref={wrapperRef}>
       {label && <label>{label}</label>}
@@ -39,10 +67,7 @@ export default function ComboBox({ options, placeholder, label, className = "fil
           className={inputClassName}
           placeholder={placeholder} 
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setIsOpen(true);
-          }}
+          onChange={(e) => handleInputChange(e.target.value)}
           onClick={() => setIsOpen(true)}
           style={{paddingRight: '2rem'}}
         />
@@ -55,10 +80,7 @@ export default function ComboBox({ options, placeholder, label, className = "fil
             <li 
               key={opt} 
               className="dropdown-item"
-              onClick={() => {
-                setQuery(opt);
-                setIsOpen(false);
-              }}
+              onClick={() => handleOptionSelect(opt)}
             >
               {opt}
             </li>

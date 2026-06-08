@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { PlusCircle, Search, Clock, Users, Edit, Trash2, XCircle } from 'lucide-react';
 import '../../students/posts/posts.css';
 import { SUBJECTS, GRADES, FORMATS } from '@/lib/constants';
+import ComboBox from '@/components/common/ComboBox';
 
 export default function TutorPosts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const [posts, setPosts] = useState([
+  const [posts, setPosts] = useState<any[]>([
     {
       id: 1,
       title: "Lớp Luyện thi Đại học môn Toán Khối A cấp tốc 3 tháng",
@@ -205,24 +206,33 @@ export default function TutorPosts() {
               
               <div className="form-grid" style={{marginBottom: '1rem'}}>
                 <div className="form-group">
-                  <label>Môn học</label>
-                  <select className="input-field" value={newSubject} onChange={(e) => setNewSubject(e.target.value)}>
-                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  <ComboBox
+                    options={SUBJECTS}
+                    placeholder="Chọn môn học..."
+                    label="Môn học"
+                    value={newSubject}
+                    onChange={(val) => setNewSubject(val)}
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Lớp / Cấp học</label>
-                  <select className="input-field" value={newGrade} onChange={(e) => setNewGrade(e.target.value)}>
-                    {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
-                  </select>
+                  <ComboBox
+                    options={GRADES}
+                    placeholder="Chọn lớp..."
+                    label="Lớp / Cấp học"
+                    value={newGrade}
+                    onChange={(val) => setNewGrade(val)}
+                  />
                 </div>
               </div>
 
               <div className="form-group" style={{marginBottom: '1rem'}}>
-                  <label>Hình thức học</label>
-                  <select className="input-field" value={newFormat} onChange={(e) => setNewFormat(e.target.value)}>
-                    {FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
+                  <ComboBox
+                    options={FORMATS}
+                    placeholder="Chọn hình thức..."
+                    label="Hình thức học"
+                    value={newFormat}
+                    onChange={(val) => setNewFormat(val)}
+                  />
               </div>
               
               <div className="form-grid" style={{marginBottom: '1rem'}}>

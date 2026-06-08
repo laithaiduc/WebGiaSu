@@ -8,13 +8,26 @@ import "./Navbar.css";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [role, setRole] = useState<string | null>(null);
-  
+  const [userName, setUserName] = useState('');
+  const [userAvatar, setUserAvatar] = useState('');
+
   useEffect(() => {
-    // Client-side only
     const savedRole = localStorage.getItem('userRole');
-    if (savedRole) {
-      setRole(savedRole);
-    }
+    const savedName = localStorage.getItem('userName');
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedRole) setRole(savedRole);
+    if (savedName) setUserName(savedName);
+    if (savedAvatar) setUserAvatar(savedAvatar);
+
+    // Listen for storage changes (when user saves profile)
+    const handleStorage = () => {
+      const n = localStorage.getItem('userName');
+      const a = localStorage.getItem('userAvatar');
+      if (n) setUserName(n);
+      if (a) setUserAvatar(a);
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const handleLogout = () => {
@@ -60,11 +73,15 @@ export default function Navbar() {
           {role ? (
             <div className="dropdown">
               <div className="flex-center" style={{gap: '0.5rem', cursor: 'pointer'}}>
-                <div style={{width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'}}>
-                  {role === 'admin' ? 'A' : role === 'tutor' ? 'G' : 'H'}
-                </div>
+                {userAvatar ? (
+                  <img src={userAvatar} alt="avatar" style={{width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)', background: 'transparent'}} />
+                ) : (
+                  <div style={{width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'}}>
+                    {userName ? userName.charAt(0).toUpperCase() : (role === 'admin' ? 'A' : role === 'tutor' ? 'G' : 'H')}
+                  </div>
+                )}
                 <span style={{fontWeight: 700}}>
-                  {role === 'admin' ? 'Quản trị viên' : role === 'tutor' ? 'Gia sư Trần B' : 'Học sinh Văn A'} ▾
+                  {userName || (role === 'admin' ? 'Quản trị viên' : role === 'tutor' ? 'Gia sư' : 'Học sinh')} ▾
                 </span>
               </div>
               <div className="dropdown-content" style={{right: 0, left: 'auto', minWidth: '180px'}}>

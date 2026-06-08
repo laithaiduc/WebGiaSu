@@ -1,21 +1,31 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { User, Target, MapPin, CheckCircle, Settings, LogOut, FileText, Heart, Star } from 'lucide-react';
+import { User, Target, MapPin, CheckCircle, Settings, LogOut, FileText, Heart, Star, Phone, Users } from 'lucide-react';
 import Link from 'next/link';
 import '../../tutors/dashboard/tutor.css'; // Reuse dashboard layout css
 import ComboBox from '@/components/common/ComboBox';
+import { GRADES } from '@/lib/constants';
 
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
   const [userName, setUserName] = useState('Trần Học Sinh');
   const [userEmail, setUserEmail] = useState('student@tutor.com');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [userAvatar, setUserAvatar] = useState('');
   
   useEffect(() => {
     const savedName = localStorage.getItem('userName');
     const savedEmail = localStorage.getItem('userEmail');
+    const savedPhone = localStorage.getItem('userPhone');
+    const savedGender = localStorage.getItem('userGender');
+    const savedAvatar = localStorage.getItem('userAvatar');
     if (savedName) setUserName(savedName);
     if (savedEmail) setUserEmail(savedEmail);
+    if (savedPhone) setPhone(savedPhone);
+    if (savedGender) setGender(savedGender);
+    if (savedAvatar) setUserAvatar(savedAvatar);
   }, []);
 
   const [savedTutors, setSavedTutors] = useState([
@@ -39,7 +49,11 @@ export default function StudentDashboard() {
       {/* Sidebar */}
       <aside className="dashboard-sidebar card glass">
         <div className="profile-summary flex-center" style={{flexDirection: 'column', gap: '1rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)'}}>
-          <div className="tutor-avatar-large" style={{background: '#10B981'}}>{userName.charAt(0).toUpperCase()}</div>
+          {userAvatar ? (
+            <img src={userAvatar} alt="avatar" className="tutor-avatar-large" style={{objectFit: 'cover', border: '3px solid var(--primary)', borderRadius: '50%', background: 'transparent'}} />
+          ) : (
+            <div className="tutor-avatar-large" style={{background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold'}}>{userName.charAt(0).toUpperCase()}</div>
+          )}
           <div style={{textAlign: 'center'}}>
             <h3 style={{fontSize: '1.25rem', color: '#D94625'}}>{userName}</h3>
             <p className="text-muted">Học sinh</p>
@@ -66,6 +80,50 @@ export default function StudentDashboard() {
             <h2 style={{color: '#D94625', marginBottom: '2rem'}}>Hồ sơ Học sinh</h2>
 
             <form className="profile-form">
+              <div className="form-group" style={{marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', borderBottom: '1px dashed var(--border)', paddingBottom: '1.5rem'}}>
+                <label style={{alignSelf: 'flex-start', fontWeight: 600}}>Ảnh đại diện</label>
+                <div className="flex-center" style={{flexDirection: 'column', gap: '1rem'}}>
+                  {userAvatar ? (
+                    <img src={userAvatar} alt="avatar preview" style={{width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', background: 'transparent'}} />
+                  ) : (
+                    <div style={{width: '100px', height: '100px', borderRadius: '50%', background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 'bold'}}>
+                      {userName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-center" style={{gap: '1rem'}}>
+                    <label className="btn btn-outline" style={{cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', padding: '0.5rem 1rem'}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                      Tải ảnh lên
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        style={{display: 'none'}} 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setUserAvatar(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }} 
+                      />
+                    </label>
+                    {userAvatar && (
+                      <button 
+                        type="button" 
+                        className="btn" 
+                        style={{background: 'none', border: '1px solid #EF4444', color: '#EF4444', fontSize: '0.9rem', padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem'}}
+                        onClick={() => setUserAvatar('')}
+                      >
+                        Xóa ảnh
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="form-grid">
                 <div className="form-group">
                   <label>Họ và tên</label>
@@ -77,9 +135,47 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Phone size={16} /> Số điện thoại</label>
+                  <input
+                    type="tel"
+                    className="input-field"
+                    placeholder="Ví dụ: 0901 234 567"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Users size={16} /> Giới tính</label>
+                  <div className="flex-center" style={{gap: '1.5rem', justifyContent: 'flex-start', marginTop: '0.5rem'}}>
+                    <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nam' ? 700 : 400}}>
+                      <input
+                        type="radio"
+                        name="student-gender"
+                        value="Nam"
+                        checked={gender === 'Nam'}
+                        onChange={() => setGender('Nam')}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
+                      /> Nam
+                    </label>
+                    <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nữ' ? 700 : 400}}>
+                      <input
+                        type="radio"
+                        name="student-gender"
+                        value="Nữ"
+                        checked={gender === 'Nữ'}
+                        onChange={() => setGender('Nữ')}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
+                      /> Nữ
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <h3 className="section-subtitle"><Target size={20} /> Tình trạng & Mục tiêu học tập</h3>
               <div className="form-group">
-                <ComboBox label="Lớp đang học" placeholder="Chọn lớp..." options={["Lớp 9", "Lớp 10", "Lớp 11", "Lớp 12", "Đại học"]} />
+                <ComboBox label="Lớp đang học" placeholder="Chọn lớp..." options={GRADES} />
               </div>
               <div className="form-group">
                 <label>Mục tiêu & Sở thích (Giúp gia sư hiểu bạn hơn)</label>
@@ -93,7 +189,21 @@ export default function StudentDashboard() {
               </div>
               
               <div className="flex-center" style={{marginTop: '2rem', justifyContent: 'flex-end'}}>
-                <button type="button" className="btn btn-primary flex-center" style={{gap: '0.5rem'}}><CheckCircle size={20}/> Lưu thay đổi</button>
+                <button
+                  type="button"
+                  className="btn btn-primary flex-center"
+                  style={{gap: '0.5rem'}}
+                  onClick={() => {
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userPhone', phone);
+                    localStorage.setItem('userGender', gender);
+                    localStorage.setItem('userAvatar', userAvatar);
+                    window.dispatchEvent(new Event('storage'));
+                    alert('Đã lưu thay đổi!');
+                  }}
+                >
+                  <CheckCircle size={20}/> Lưu thay đổi
+                </button>
               </div>
             </form>
           </div>

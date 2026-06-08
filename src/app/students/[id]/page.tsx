@@ -1,6 +1,6 @@
 "use client";
-import { useState } from 'react';
-import { MapPin, Target, Book, CheckCircle, Heart, MessageCircle, X, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Target, Book, CheckCircle, Heart, MessageCircle, X, Send, Phone, Users } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 
 export default function StudentProfilePublic() {
@@ -10,6 +10,33 @@ export default function StudentProfilePublic() {
     { id: 1, text: 'Chào bạn, mình là Gia sư, bạn đang cần tìm người dạy kèm môn Tiếng Anh đúng không?', isUser: false }
   ]);
   const [inputValue, setInputValue] = useState('');
+
+  // Loaded student info
+  const [studentName, setStudentName] = useState("Trần Học Sinh");
+  const [studentAvatar, setStudentAvatar] = useState("");
+  const [phone, setPhone] = useState("090••••1234");
+  const [gender, setGender] = useState("Nữ");
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+    if (role === 'student') {
+      const savedName = localStorage.getItem('userName');
+      const savedAvatar = localStorage.getItem('userAvatar');
+      const savedPhone = localStorage.getItem('userPhone');
+      const savedGender = localStorage.getItem('userGender');
+      if (savedName) setStudentName(savedName);
+      if (savedAvatar) setStudentAvatar(savedAvatar);
+      if (savedGender) setGender(savedGender);
+      if (savedPhone) {
+        const clean = savedPhone.replace(/\s+/g, '');
+        if (clean.length > 7) {
+          setPhone(clean.substring(0, 3) + '••••' + clean.substring(clean.length - 4));
+        } else {
+          setPhone(savedPhone);
+        }
+      }
+    }
+  }, []);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -30,17 +57,25 @@ export default function StudentProfilePublic() {
         <div style={{flex: 1}}>
           {/* Header Info */}
           <div className="card glass" style={{padding: '2rem', marginBottom: '2rem', display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
-            <div style={{width: '100px', height: '100px', borderRadius: '50%', background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 800, flexShrink: 0}}>T</div>
+            {studentAvatar ? (
+              <img src={studentAvatar} alt="avatar" style={{width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)', background: 'transparent', flexShrink: 0}} />
+            ) : (
+              <div style={{width: '100px', height: '100px', borderRadius: '50%', background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 800, flexShrink: 0}}>
+                {studentName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div style={{flex: 1}}>
               <div className="flex-between">
                 <h1 style={{color: '#D94625', fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                  Trần Học Sinh <span title="Đã xác thực" style={{display: 'flex'}}><CheckCircle size={24} color="#10B981" /></span>
+                  {studentName} <span title="Đã xác thực" style={{display: 'flex'}}><CheckCircle size={24} color="#10B981" /></span>
                 </h1>
               </div>
               <p className="text-muted" style={{fontSize: '1.1rem', marginTop: '0.25rem'}}>Học sinh Lớp 10</p>
               
-              <div style={{display: 'flex', gap: '1.5rem', marginTop: '1rem', color: 'var(--text-main)'}}>
+              <div style={{display: 'flex', gap: '1.5rem', marginTop: '1rem', color: 'var(--text-main)', flexWrap: 'wrap'}}>
                 <span className="flex-center" style={{gap: '0.5rem'}}><MapPin size={18} className="text-muted" /> Quận Bình Thạnh, TP.HCM</span>
+                <span className="flex-center" style={{gap: '0.5rem'}}><Users size={18} className="text-muted" /> {gender}</span>
+                <span className="flex-center" style={{gap: '0.5rem'}}><Phone size={18} className="text-muted" /> {phone}</span>
               </div>
             </div>
           </div>
@@ -85,6 +120,14 @@ export default function StudentProfilePublic() {
             
             <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
               <div className="flex-between">
+                <span className="text-muted">Giới tính:</span>
+                <strong>{gender}</strong>
+              </div>
+              <div className="flex-between">
+                <span className="text-muted">Số điện thoại:</span>
+                <strong>{phone}</strong>
+              </div>
+              <div className="flex-between">
                 <span className="text-muted">Hình thức mong muốn:</span>
                 <strong>Online hoặc Offline</strong>
               </div>
@@ -102,9 +145,15 @@ export default function StudentProfilePublic() {
         <div style={{position: 'fixed', bottom: '20px', right: '20px', width: '350px', background: 'var(--background)', borderRadius: 'var(--radius-md)', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', zIndex: 1000, display: 'flex', flexDirection: 'column', border: '1px solid var(--border)', overflow: 'hidden'}}>
           <div className="flex-between" style={{background: 'var(--primary)', color: 'white', padding: '1rem'}}>
             <div className="flex-center" style={{gap: '0.5rem'}}>
-              <div style={{width: '32px', height: '32px', borderRadius: '50%', background: 'white', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'}}>T</div>
+              {studentAvatar ? (
+                <img src={studentAvatar} alt="avatar" style={{width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover'}} />
+              ) : (
+                <div style={{width: '32px', height: '32px', borderRadius: '50%', background: 'white', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'}}>
+                  {studentName.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div>
-                <h4 style={{margin: 0, fontSize: '1rem'}}>Học sinh Trần</h4>
+                <h4 style={{margin: 0, fontSize: '1rem'}}>{studentName}</h4>
                 <p style={{margin: 0, fontSize: '0.75rem', opacity: 0.8}}>Đang trực tuyến</p>
               </div>
             </div>
