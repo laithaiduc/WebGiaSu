@@ -70,6 +70,10 @@ export async function fetchPosts(type: 'student' | 'tutor') {
   return request(`/posts?type=${type}`);
 }
 
+export async function fetchMyPosts() {
+  return request('/posts/mine');
+}
+
 export async function fetchTutors(params?: {
   subject?: string;
   grade?: string;

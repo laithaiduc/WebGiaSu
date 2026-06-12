@@ -85,9 +85,10 @@ router.post('/login', async (req, res) => {
 
   const user = users[0];
   const storedPassword = user.password;
-  const isValid = storedPassword && (storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$'))
-    ? await bcrypt.compare(password, storedPassword)
-    : password === storedPassword;
+  if (!storedPassword) {
+    return res.status(401).json({ error: 'Email hoặc mật khẩu không đúng.' });
+  }
+  const isValid = await bcrypt.compare(password, storedPassword);
 
   if (!isValid) {
     return res.status(401).json({ error: 'Email hoặc mật khẩu không đúng.' });

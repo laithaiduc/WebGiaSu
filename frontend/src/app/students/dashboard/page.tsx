@@ -1,22 +1,29 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { User, Target, MapPin, CheckCircle, Settings, LogOut, FileText, Heart, Star, Phone, Users, MessageCircle } from 'lucide-react';
+import { User, Target, MapPin, CheckCircle, Settings, LogOut, Heart, Star, Phone, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import '../../tutors/dashboard/tutor.css'; // Reuse dashboard layout css
 import ComboBox from '@/components/common/ComboBox';
 import { GRADES } from '@/lib/constants';
 import { useAuth } from '@/context/AuthContext';
 import { fetchSavedTutorsForStudent, unsaveTutorProfile } from '@/lib/api';
 
+
 export default function StudentDashboard() {
-  const { user, logout, saveProfile } = useAuth();
+  const { user, loading, logout, saveProfile } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [profileErrors, setProfileErrors] = useState<{phone?: string; gender?: string}>({});
   const [userName, setUserName] = useState('Trần Học Sinh');
   const [userEmail, setUserEmail] = useState('student@tutor.com');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
+  const [grade, setGrade] = useState('');
+  const [goal, setGoal] = useState('');
+  const [location, setLocation] = useState('');
   
   useEffect(() => {
     if (user) {
@@ -36,6 +43,15 @@ export default function StudentDashboard() {
       .then((res) => setSavedTutors(res.data || []))
       .catch(() => setSavedTutors([]));
   }, [user]);
+
+  // Route guard: chỉ học sinh mới vào được trang này
+  useEffect(() => {
+    if (!user && !loading) {
+      router.replace('/login');
+    } else if (user && user.role !== 'student') {
+      router.replace('/');
+    }
+  }, [user, loading, router]);
 
   const handleUnsave = async (id: number) => {
     try {
@@ -74,8 +90,6 @@ export default function StudentDashboard() {
           <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')} style={{width: '100%', background: activeTab === 'saved' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
             <Heart size={20}/> Gia sư đã lưu
           </button>
-          <Link href="/students/posts" className="nav-item" style={{textDecoration: 'none'}}><FileText size={20}/> Quản lý Bài đăng</Link>
-          <Link href="/students/messages" className="nav-item" style={{textDecoration: 'none'}}><MessageCircle size={20}/> Tin nhắn</Link>
           <a href="#" className="nav-item" style={{textDecoration: 'none'}}><Settings size={20}/> Cài đặt tài khoản</a>
           <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto', textDecoration: 'none'}}><LogOut size={20}/> Đăng xuất</a>
         </nav>
@@ -134,66 +148,64 @@ export default function StudentDashboard() {
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Họ và tên</label>
+                  <label>Họ và tên <span style={{color:'#EF4444'}}>*</span></label>
                   <input type="text" className="input-field" value={userName} onChange={(e) => setUserName(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
-                  <input type="email" className="input-field" value={userEmail} readOnly style={{backgroundColor: '#f3f4f6'}} />
+                  <label>Email <span style={{color:'#EF4444'}}>*</span></label>
+                  <input type="email" className="input-field" value={userEmail} readOnly style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}} />
+                  <span style={{fontSize:'0.78rem', color:'var(--text-muted)', marginTop:'0.25rem', display:'block'}}>Đây là email tài khoản, không thể thay đổi</span>
                 </div>
               </div>
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Phone size={16} /> Số điện thoại</label>
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}>
+                    <Phone size={16} /> Số điện thoại <span style={{color:'#EF4444'}}>*</span>
+                  </label>
                   <input
                     type="tel"
                     className="input-field"
                     placeholder="Ví dụ: 0901 234 567"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => { setPhone(e.target.value); if (e.target.value.trim()) setProfileErrors(prev => ({...prev, phone: undefined})); }}
+                    style={{borderColor: profileErrors.phone ? '#EF4444' : undefined}}
                   />
+                  {profileErrors.phone && <span style={{color:'#EF4444', fontSize:'0.8rem', marginTop:'0.3rem', display:'flex', alignItems:'center', gap:'0.3rem'}}>⚠️ {profileErrors.phone}</span>}
                 </div>
                 <div className="form-group">
-                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Users size={16} /> Giới tính</label>
-                  <div className="flex-center" style={{gap: '1.5rem', justifyContent: 'flex-start', marginTop: '0.5rem'}}>
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}>
+                    <Users size={16} /> Giới tính <span style={{color:'#EF4444'}}>*</span>
+                  </label>
+                  <div className="flex-center" style={{gap: '1.5rem', justifyContent: 'flex-start', marginTop: '0.5rem', padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-sm)', border: profileErrors.gender ? '1.5px solid #EF4444' : '1.5px solid transparent', background: profileErrors.gender ? 'rgba(239,68,68,0.04)' : 'transparent'}}>
                     <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nam' ? 700 : 400}}>
-                      <input
-                        type="radio"
-                        name="student-gender"
-                        value="Nam"
-                        checked={gender === 'Nam'}
-                        onChange={() => setGender('Nam')}
-                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
-                      /> Nam
+                      <input type="radio" name="student-gender" value="Nam" checked={gender === 'Nam'}
+                        onChange={() => { setGender('Nam'); setProfileErrors(prev => ({...prev, gender: undefined})); }}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}} /> Nam
                     </label>
                     <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nữ' ? 700 : 400}}>
-                      <input
-                        type="radio"
-                        name="student-gender"
-                        value="Nữ"
-                        checked={gender === 'Nữ'}
-                        onChange={() => setGender('Nữ')}
-                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
-                      /> Nữ
+                      <input type="radio" name="student-gender" value="Nữ" checked={gender === 'Nữ'}
+                        onChange={() => { setGender('Nữ'); setProfileErrors(prev => ({...prev, gender: undefined})); }}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}} /> Nữ
                     </label>
                   </div>
+                  {profileErrors.gender && <span style={{color:'#EF4444', fontSize:'0.8rem', marginTop:'0.3rem', display:'flex', alignItems:'center', gap:'0.3rem'}}>⚠️ {profileErrors.gender}</span>}
                 </div>
               </div>
 
               <h3 className="section-subtitle"><Target size={20} /> Tình trạng & Mục tiêu học tập</h3>
               <div className="form-group">
-                <ComboBox label="Lớp đang học" placeholder="Chọn lớp..." options={GRADES} />
+                <ComboBox label="Lớp đang học" placeholder="Chọn lớp..." options={GRADES} value={grade} onChange={setGrade} />
               </div>
               <div className="form-group">
                 <label>Mục tiêu & Sở thích (Giúp gia sư hiểu bạn hơn)</label>
-                <textarea className="input-field" rows={4} placeholder="Ví dụ: Mục tiêu đạt 8.0 Toán cuối kỳ, thích học qua hình ảnh minh họa..." style={{resize: 'vertical'}}></textarea>
+                <textarea className="input-field" rows={4} placeholder="Ví dụ: Mục tiêu đạt 8.0 Toán cuối kỳ..." style={{resize: 'vertical'}} value={goal} onChange={e => setGoal(e.target.value)} />
               </div>
 
               <h3 className="section-subtitle"><MapPin size={20} /> Khu vực & Thông tin liên hệ</h3>
               <div className="form-group">
                 <label>Nơi ở hiện tại</label>
-                <input type="text" className="input-field" placeholder="Ví dụ: Quận Bình Thạnh, TP.HCM" />
+                <input type="text" className="input-field" placeholder="Ví dụ: Quận Bình Thạnh, TP.HCM" value={location} onChange={e => setLocation(e.target.value)} />
               </div>
               
               <div className="flex-center" style={{marginTop: '2rem', justifyContent: 'flex-end'}}>
@@ -202,6 +214,15 @@ export default function StudentDashboard() {
                   className="btn btn-primary flex-center"
                   style={{gap: '0.5rem'}}
                   onClick={async () => {
+                    const errs: {phone?: string; gender?: string} = {};
+                    if (!phone.trim()) errs.phone = 'Vui lòng nhập số điện thoại';
+                    else if (!/^[0-9\s+\-().]{8,15}$/.test(phone.trim())) errs.phone = 'Số điện thoại không hợp lệ';
+                    if (!gender) errs.gender = 'Vui lòng chọn giới tính';
+                    if (Object.keys(errs).length > 0) {
+                      setProfileErrors(errs);
+                      return;
+                    }
+                    setProfileErrors({});
                     try {
                       await saveProfile({
                         name: userName,
@@ -245,7 +266,7 @@ export default function StudentDashboard() {
                         <h3 style={{marginBottom: '0.25rem', color: 'var(--text-main)', fontSize: '1.2rem'}}>{tutor.name}</h3>
                         <p className="text-muted" style={{fontSize: '0.9rem', marginBottom: '0.4rem'}}>{tutor.subjects || tutor.location || 'Gia sư'}</p>
                         <div className="flex-center" style={{gap: '0.25rem', color: '#F59E0B', fontSize: '0.85rem', fontWeight: 600}}>
-                          <Star fill="currentColor" size={14} /> {(tutor.rating ?? 0).toFixed(1)}
+                          <Star fill="currentColor" size={14} /> {Number(tutor.rating ?? 0).toFixed(1)}
                         </div>
                       </div>
                     </div>
@@ -261,6 +282,7 @@ export default function StudentDashboard() {
             </div>
           </div>
         )}
+
       </main>
     </div>
   );

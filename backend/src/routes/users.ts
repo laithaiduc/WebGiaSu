@@ -28,13 +28,23 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+  const authUser = await authenticateRequest(req, res);
+  if (!authUser) return res.status(401).json({ error: 'Bạn cần đăng nhập.' });
+
   const id = Number(req.params.id);
   const rows = await query<any[]>(
     'SELECT id, name, email, role, phone, gender, avatar, created_at FROM users WHERE id = ?',
     [id]
   );
   if (!rows.length) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
-  return res.json({ data: sanitizeUser(rows[0]) });
+
+  const user = rows[0];
+  // Ẩn email với người dùng khác (chỉ admin hoặc chính mình mới thấy email)
+  if (authUser.role !== 'admin' && authUser.id !== id) {
+    const { email: _email, ...publicUser } = sanitizeUser(user);
+    return res.json({ data: publicUser });
+  }
+  return res.json({ data: sanitizeUser(user) });
 });
 
 router.put('/:id/role', async (req, res) => {

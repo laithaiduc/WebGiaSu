@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { User, Book, MapPin, Award, CheckCircle, Settings, LogOut, Briefcase, Heart, Trash2, Phone, Users } from 'lucide-react';
+import { User, Book, MapPin, Award, CheckCircle, Settings, LogOut, Briefcase, Heart, Trash2, Phone, Users, Mail, Star } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ComboBox from '@/components/common/ComboBox';
 import './tutor.css';
 import { useAuth } from '@/context/AuthContext';
 import { fetchSavedStudentsForTutor, unsaveStudentProfile, fetchReceivedApplications, updateTutorProfile, fetchTutorById } from '@/lib/api';
 
+import TutorReviewsTab from '@/components/reviews/TutorReviewsTab';
+
 export default function TutorDashboard() {
-  const { user, logout, saveProfile } = useAuth();
+  const { user, loading, logout, saveProfile } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [profileErrors, setProfileErrors] = useState<{phone?: string; gender?: string}>({});
   const [isAccepting, setIsAccepting] = useState(true);
   const [userName, setUserName] = useState('Gia sư');
   const [userEmail, setUserEmail] = useState('');
@@ -64,6 +69,15 @@ export default function TutorDashboard() {
       .catch(() => {});
   }, [user]);
 
+  // Route guard: chỉ gia sư mới vào được trang này
+  useEffect(() => {
+    if (!user && !loading) {
+      router.replace('/login');
+    } else if (user && user.role !== 'tutor') {
+      router.replace('/');
+    }
+  }, [user, router]);
+
   const handleUnsave = async (id: number) => {
     try {
       await unsaveStudentProfile(id);
@@ -99,12 +113,14 @@ export default function TutorDashboard() {
             <User size={20}/> Hồ sơ cá nhân
           </button>
           <button className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')} style={{width: '100%', background: activeTab === 'applications' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem'}}>
-            <Briefcase size={20}/> Lớp đã ứng tuyển
+            <Briefcase size={20}/> Ứng tuyển nhận được
           </button>
           <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')} style={{width: '100%', background: activeTab === 'saved' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
             <Heart size={20}/> Học sinh đã lưu
           </button>
-          <a href="/tutors/reviews" className="nav-item" style={{textDecoration: 'none'}}><Award size={20}/> Quản lý đánh giá</a>
+          <button className={`nav-item ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')} style={{width: '100%', background: activeTab === 'reviews' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem'}}>
+            <Star size={20}/> Đánh giá của tôi
+          </button>
           <a href="#" className="nav-item" style={{textDecoration: 'none'}}><Settings size={20}/> Cài đặt tài khoản</a>
           <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto', textDecoration: 'none'}}><LogOut size={20}/> Đăng xuất</a>
         </nav>
@@ -175,50 +191,48 @@ export default function TutorDashboard() {
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Họ và tên</label>
+                  <label>Họ và tên <span style={{color:'#EF4444'}}>*</span></label>
                   <input type="text" className="input-field" value={userName} onChange={(e) => setUserName(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
-                  <input type="email" className="input-field" value={userEmail} readOnly style={{backgroundColor: '#f3f4f6'}} />
+                  <label>Email <span style={{color:'#EF4444'}}>*</span></label>
+                  <input type="email" className="input-field" value={userEmail} readOnly style={{backgroundColor: '#f3f4f6', cursor: 'not-allowed'}} />
+                  <span style={{fontSize:'0.78rem', color:'var(--text-muted)', marginTop:'0.25rem', display:'block'}}>Đây là email tài khoản, không thể thay đổi</span>
                 </div>
               </div>
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Phone size={16} /> Số điện thoại</label>
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}>
+                    <Phone size={16} /> Số điện thoại <span style={{color:'#EF4444'}}>*</span>
+                  </label>
                   <input
                     type="tel"
                     className="input-field"
                     placeholder="Ví dụ: 0901 234 567"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => { setPhone(e.target.value); if (e.target.value.trim()) setProfileErrors(prev => ({...prev, phone: undefined})); }}
+                    style={{borderColor: profileErrors.phone ? '#EF4444' : undefined}}
                   />
+                  {profileErrors.phone && <span style={{color:'#EF4444', fontSize:'0.8rem', marginTop:'0.3rem', display:'flex', alignItems:'center', gap:'0.3rem'}}>⚠️ {profileErrors.phone}</span>}
                 </div>
                 <div className="form-group">
-                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}><Users size={16} /> Giới tính</label>
-                  <div className="flex-center" style={{gap: '1.5rem', justifyContent: 'flex-start', marginTop: '0.5rem'}}>
+                  <label className="flex-center" style={{gap: '0.4rem', justifyContent: 'flex-start'}}>
+                    <Users size={16} /> Giới tính <span style={{color:'#EF4444'}}>*</span>
+                  </label>
+                  <div className="flex-center" style={{gap: '1.5rem', justifyContent: 'flex-start', marginTop: '0.5rem', padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-sm)', border: profileErrors.gender ? '1.5px solid #EF4444' : '1.5px solid transparent', background: profileErrors.gender ? 'rgba(239,68,68,0.04)' : 'transparent'}}>
                     <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nam' ? 700 : 400}}>
-                      <input
-                        type="radio"
-                        name="tutor-gender"
-                        value="Nam"
-                        checked={gender === 'Nam'}
-                        onChange={() => setGender('Nam')}
-                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
-                      /> Nam
+                      <input type="radio" name="tutor-gender" value="Nam" checked={gender === 'Nam'}
+                        onChange={() => { setGender('Nam'); setProfileErrors(prev => ({...prev, gender: undefined})); }}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}} /> Nam
                     </label>
                     <label className="flex-center" style={{gap: '0.5rem', cursor: 'pointer', fontWeight: gender === 'Nữ' ? 700 : 400}}>
-                      <input
-                        type="radio"
-                        name="tutor-gender"
-                        value="Nữ"
-                        checked={gender === 'Nữ'}
-                        onChange={() => setGender('Nữ')}
-                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}}
-                      /> Nữ
+                      <input type="radio" name="tutor-gender" value="Nữ" checked={gender === 'Nữ'}
+                        onChange={() => { setGender('Nữ'); setProfileErrors(prev => ({...prev, gender: undefined})); }}
+                        style={{accentColor: 'var(--primary)', width: '18px', height: '18px'}} /> Nữ
                     </label>
                   </div>
+                  {profileErrors.gender && <span style={{color:'#EF4444', fontSize:'0.8rem', marginTop:'0.3rem', display:'flex', alignItems:'center', gap:'0.3rem'}}>⚠️ {profileErrors.gender}</span>}
                 </div>
               </div>
 
@@ -266,6 +280,16 @@ export default function TutorDashboard() {
                   className="btn btn-primary flex-center"
                   style={{gap: '0.5rem'}}
                   onClick={async () => {
+                    // Validate bắt buộc
+                    const errs: {phone?: string; gender?: string} = {};
+                    if (!phone.trim()) errs.phone = 'Vui lòng nhập số điện thoại';
+                    else if (!/^[0-9\s+\-().]{8,15}$/.test(phone.trim())) errs.phone = 'Số điện thoại không hợp lệ';
+                    if (!gender) errs.gender = 'Vui lòng chọn giới tính';
+                    if (Object.keys(errs).length > 0) {
+                      setProfileErrors(errs);
+                      return;
+                    }
+                    setProfileErrors({});
                     try {
                       await saveProfile({ name: userName, phone, gender, avatar: userAvatar });
                       await updateTutorProfile({
@@ -333,8 +357,8 @@ export default function TutorDashboard() {
                       <div>
                         <h3 style={{fontSize: '1.1rem', marginBottom: '0.25rem', color: 'var(--text-main)'}}>{student.name}</h3>
                         <p className="text-muted" style={{fontSize: '0.9rem', display: 'flex', gap: '1rem', alignItems: 'center'}}>
-                          <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Book size={14} /> {student.email}</span>
-                          {student.phone && <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><MapPin size={14} /> {student.phone}</span>}
+                          <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Mail size={14} /> {student.email}</span>
+                          {student.phone && <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Phone size={14} /> {student.phone}</span>}
                         </p>
                       </div>
                     </div>
@@ -352,6 +376,11 @@ export default function TutorDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+        {activeTab === 'reviews' && (
+          <div>
+            <TutorReviewsTab />
           </div>
         )}
       </main>

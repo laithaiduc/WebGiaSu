@@ -10,6 +10,10 @@ import { fetchPosts } from '@/lib/api';
 
 export default function StudentJobBoard() {
   const [jobs, setJobs] = useState<any[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [appliedSubject, setAppliedSubject] = useState('');
+  const [appliedFormat, setAppliedFormat] = useState('');
 
   useEffect(() => {
     const loadTutorPosts = async () => {
@@ -45,6 +49,17 @@ export default function StudentJobBoard() {
     loadTutorPosts();
   }, []);
 
+  const handleApply = () => {
+    setAppliedSubject(selectedSubject);
+    setAppliedFormat(selectedFormat);
+  };
+
+  const filteredJobs = jobs.filter(job => {
+    const subjectMatch = !appliedSubject || job.subject.toLowerCase().includes(appliedSubject.toLowerCase());
+    const formatMatch = !appliedFormat || job.format.toLowerCase().includes(appliedFormat.toLowerCase());
+    return subjectMatch && formatMatch;
+  });
+
   return (
     <div className="container jobs-container">
       <div className="page-header" style={{textAlign: 'center', marginBottom: '3rem', paddingTop: '2rem'}}>
@@ -56,16 +71,16 @@ export default function StudentJobBoard() {
         <aside className="filters-sidebar glass">
           <h3 className="flex-center" style={{gap: '0.5rem', marginBottom: '1.5rem'}}><Filter size={20} /> Bộ lọc Bảng tin</h3>
           
-          <ComboBox label="Môn học" placeholder="Tìm môn học..." options={SUBJECTS} />
+          <ComboBox label="Môn học" placeholder="Tìm môn học..." options={SUBJECTS} value={selectedSubject} onChange={setSelectedSubject} />
           
-          <ComboBox label="Hình thức học" placeholder="Tất cả hình thức" options={FORMATS} />
+          <ComboBox label="Hình thức học" placeholder="Tất cả hình thức" options={FORMATS} value={selectedFormat} onChange={setSelectedFormat} />
           
-          <button className="btn btn-primary" style={{width: '100%', marginTop: '1rem'}}>Lọc kết quả</button>
+          <button className="btn btn-primary" style={{width: '100%', marginTop: '1rem'}} onClick={handleApply}>Lọc kết quả</button>
         </aside>
 
         <main className="results-container">
           <div className="flex-between" style={{marginBottom: '1.5rem'}}>
-            <p>Có <strong>{jobs.length}</strong> lớp học đang mở</p>
+            <p>Có <strong>{filteredJobs.length}</strong> lớp học đang mở</p>
             <div className="input-with-icon" style={{width: '250px', position: 'relative'}}>
               <Search size={16} className="text-muted" style={{position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)'}} />
               <input type="text" className="input-field" placeholder="Tìm kiếm lớp..." style={{paddingLeft: '2.5rem'}} />
@@ -73,7 +88,7 @@ export default function StudentJobBoard() {
           </div>
 
           <div className="jobs-list">
-            {jobs.map((job, index) => (
+            {filteredJobs.map((job, index) => (
               <div key={job.id || `job-${index}`} className="card glass job-card">
                 <div className="flex-between" style={{marginBottom: '1rem'}}>
                   <div className="flex-center" style={{gap: '0.5rem'}}>

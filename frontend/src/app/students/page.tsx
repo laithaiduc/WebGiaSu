@@ -27,7 +27,7 @@ function FindTutorContent() {
   const [loading, setLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState(initialSubject);
   const [selectedGrade, setSelectedGrade] = useState(initialGrade);
-  const [minPrice, setMinPrice] = useState('50000');
+  const [minPrice, setMinPrice] = useState('0');
   const [maxPrice, setMaxPrice] = useState('500000');
   const [selectedRegion, setSelectedRegion] = useState('Bất kỳ');
   const [selectedGender, setSelectedGender] = useState('');
@@ -37,7 +37,7 @@ function FindTutorContent() {
     subject: initialSubject,
     grade: initialGrade,
     location: initialLocation,
-    minPrice: 50000,
+    minPrice: 0,
     maxPrice: 500000,
     region: 'Bất kỳ',
     gender: '',
@@ -86,11 +86,11 @@ function FindTutorContent() {
     setSelectedSubject('');
     setSelectedGrade('');
     setLocation('');
-    setMinPrice('50000');
+    setMinPrice('0');
     setMaxPrice('500000');
     setSelectedRegion('Bất kỳ');
     setSelectedGender('');
-    const next = { subject: '', grade: '', location: '', minPrice: 50000, maxPrice: 500000, region: 'Bất kỳ', gender: '' };
+    const next = { subject: '', grade: '', location: '', minPrice: 0, maxPrice: 500000, region: 'Bất kỳ', gender: '' };
     setAppliedFilters(next);
     loadTutors(next);
   };
