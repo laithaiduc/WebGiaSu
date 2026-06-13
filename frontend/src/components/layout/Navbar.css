@@ -68,13 +68,27 @@
   width: 100%;
   background-color: var(--background);
   border-top: 1px solid var(--border);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-    z-index: 1001;
-  background-color: rgba(249, 115, 22, 0.05);
+  z-index: 1001;
+  color: var(--primary);
+}
+
+.mobile-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.mobile-link:hover {
+  background-color: rgba(249, 115, 22, 0.08);
   color: var(--primary);
 }
 
