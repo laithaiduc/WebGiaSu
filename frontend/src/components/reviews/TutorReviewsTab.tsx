@@ -47,33 +47,6 @@ export default function TutorReviewsTab() {
 
   return (
     <div className="reviews-layout">
-      <style dangerouslySetInnerHTML={{ __html: `
-        .reviews-layout {
-          display: flex;
-          gap: 2rem;
-          align-items: flex-start;
-          flex-wrap: wrap;
-        }
-        .reviews-sidebar {
-          width: 260px;
-          flex-shrink: 0;
-          background: rgba(249,115,22,0.04);
-          border: 1px solid rgba(249,115,22,0.1);
-          border-radius: 1rem;
-          padding: 1.75rem;
-          box-shadow: 0 4px 20px rgba(249,115,22,0.07);
-        }
-        @media (max-width: 768px) {
-          .reviews-layout {
-            flex-direction: column;
-            gap: 1rem;
-          }
-          .reviews-sidebar {
-            width: 100%;
-          }
-        }
-      `}} />
-      
       {/* Sidebar rating */}
       <aside className="reviews-sidebar">
         <h3 style={{ color: '#D94625', marginBottom: '1.25rem', fontSize: '1.1rem' }}>Tổng quan đánh giá</h3>
@@ -100,7 +73,7 @@ export default function TutorReviewsTab() {
       </aside>
 
       {/* Reviews list */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="reviews-list-container">
         <div className="card glass" style={{ padding: '2rem' }}>
           <h2 style={{ marginBottom: '2rem', color: 'var(--text-main)', fontSize: '1.4rem' }}>
             Tất cả nhận xét {totalReviews > 0 && <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 400 }}>({totalReviews})</span>}
