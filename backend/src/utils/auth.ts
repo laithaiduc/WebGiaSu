@@ -14,8 +14,12 @@ const {
 const jwtSecret: jwt.Secret = JWT_SECRET as jwt.Secret;
 const refreshSecret: jwt.Secret = REFRESH_TOKEN_SECRET as jwt.Secret;
 
-const secure = NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true';
-const sameSite = NODE_ENV === 'production' || process.env.FORCE_SAMESITE_NONE === 'true' ? 'none' as const : 'lax' as const;
+const isProduction = NODE_ENV === 'production' || 
+  process.env.FORCE_SECURE_COOKIES === 'true' || 
+  process.env.RAILWAY_ENVIRONMENT != null;
+
+const secure = isProduction;
+const sameSite = isProduction ? 'none' as const : 'lax' as const;
 const cookieBaseOptions = {
   httpOnly: true,
   secure,

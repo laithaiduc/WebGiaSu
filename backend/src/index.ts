@@ -21,6 +21,7 @@ dotenv.config();
 const frontendOrigin = process.env.FRONTEND_URL || process.env.FRONTEND_ORIGIN || true;
 
 const app = express();
+app.set('trust proxy', 1); // Bắt buộc khi dùng cookie secure + samesite none đằng sau proxy (Railway/Vercel)
 const port = Number(process.env.PORT || 4000);
 
 app.use(cors({ origin: frontendOrigin, credentials: true }));
