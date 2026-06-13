@@ -30,6 +30,15 @@ app.get('/', (_req, res) => {
   res.json({ status: 'backend running' });
 });
 
+import { parseCookies } from './utils/auth';
+
+// Debug route to inspect cookies sent by client
+app.get('/debug/cookies', (req, res) => {
+  const raw = req.headers.cookie || null;
+  const parsed = parseCookies(raw as string | undefined);
+  return res.json({ raw, parsed, origin: req.headers.origin || null });
+});
+
 app.use('/users', usersRouter);
 app.use('/tutors', tutorsRouter);
 app.use('/auth', authRouter);
