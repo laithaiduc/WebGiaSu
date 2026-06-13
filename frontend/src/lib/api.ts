@@ -4,7 +4,28 @@ const jsonHeaders = {
   'Content-Type': 'application/json',
 };
 
-async function request(path: string, options: RequestInit = {}) {
+const apiCache = new Map<string, { data: any; expiresAt: number }>();
+
+export function clearApiCache(prefix?: string) {
+  if (!prefix) {
+    apiCache.clear();
+  } else {
+    for (const key of apiCache.keys()) {
+      if (key.startsWith(prefix)) {
+        apiCache.delete(key);
+      }
+    }
+  }
+}
+
+async function request(path: string, options: RequestInit = {}, useCache: boolean = false, cacheTtlSec: number = 60) {
+  if (useCache && typeof window !== 'undefined' && (!options.method || options.method === 'GET')) {
+    const cached = apiCache.get(path);
+    if (cached && Date.now() < cached.expiresAt) {
+      return cached.data; // Return cached response
+    }
+  }
+
   let res: Response;
   
   const headers: Record<string, string> = {
@@ -61,6 +82,10 @@ async function request(path: string, options: RequestInit = {}) {
     throw new Error(data?.error || `Lỗi khi kết nối server (status ${res.status})`);
   }
 
+  if (useCache && typeof window !== 'undefined' && data) {
+    apiCache.set(path, { data, expiresAt: Date.now() + cacheTtlSec * 1000 });
+  }
+
   return data;
 }
 
@@ -104,7 +129,7 @@ export async function updateProfile(payload: { name: string; phone: string; gend
 }
 
 export async function fetchPosts(type: 'student' | 'tutor') {
-  return request(`/posts?type=${type}`);
+  return request(`/posts?type=${type}`, {}, true, 120);
 }
 
 export async function fetchMyPosts() {
@@ -129,7 +154,7 @@ export async function fetchTutors(params?: {
   if (params?.minPrice != null) qs.set('minPrice', String(params.minPrice));
   if (params?.maxPrice != null) qs.set('maxPrice', String(params.maxPrice));
   const query = qs.toString();
-  return request(`/tutors${query ? `?${query}` : ''}`);
+  return request(`/tutors${query ? `?${query}` : ''}`, {}, true, 120);
 }
 
 export async function fetchTutorById(id: number) {
@@ -147,6 +172,7 @@ export async function updateTutorProfile(payload: {
   formats?: string;
   is_accepting?: boolean;
 }) {
+  clearApiCache('/tutors');
   return request('/tutors/profile', {
     method: 'PUT',
     headers: jsonHeaders,
@@ -175,6 +201,7 @@ export async function deleteUser(id: number) {
 }
 
 export async function createPost(payload: any) {
+  clearApiCache('/posts');
   return request('/posts', {
     method: 'POST',
     headers: jsonHeaders,
@@ -183,6 +210,7 @@ export async function createPost(payload: any) {
 }
 
 export async function updatePost(id: number, payload: any) {
+  clearApiCache('/posts');
   return request(`/posts/${id}`, {
     method: 'PUT',
     headers: jsonHeaders,
@@ -191,6 +219,7 @@ export async function updatePost(id: number, payload: any) {
 }
 
 export async function deletePost(id: number) {
+  clearApiCache('/posts');
   return request(`/posts/${id}`, {
     method: 'DELETE',
   });
