@@ -244,6 +244,14 @@ export async function fetchReceivedApplications() {
   return request('/applications/received');
 }
 
+export async function updateApplicationStatus(id: number, status: 'accepted' | 'rejected') {
+  return request(`/applications/${id}`, {
+    method: 'PUT',
+    headers: jsonHeaders,
+    body: JSON.stringify({ status }),
+  });
+}
+
 export async function saveStudentProfile(studentId: number) {
   return request('/saved-students', {
     method: 'POST',

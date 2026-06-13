@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { User, Target, MapPin, CheckCircle, Settings, LogOut, Heart, Star, Phone, Users } from 'lucide-react';
+import { User, Target, MapPin, CheckCircle, Settings, LogOut, Heart, Star, Phone, Users, Book } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import '../../tutors/dashboard/tutor.css'; // Reuse dashboard layout css
 import ComboBox from '@/components/common/ComboBox';
 import { GRADES } from '@/lib/constants';
 import { useAuth } from '@/context/AuthContext';
-import { fetchSavedTutorsForStudent, unsaveTutorProfile } from '@/lib/api';
+import { fetchSavedTutorsForStudent, unsaveTutorProfile, fetchMyApplications } from '@/lib/api';
 
 
 export default function StudentDashboard() {
@@ -36,12 +36,16 @@ export default function StudentDashboard() {
   }, [user]);
 
   const [savedTutors, setSavedTutors] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user?.id) return;
     fetchSavedTutorsForStudent(user.id)
       .then((res) => setSavedTutors(res.data || []))
       .catch(() => setSavedTutors([]));
+    fetchMyApplications()
+      .then((res) => setApplications(res.data || []))
+      .catch(() => setApplications([]));
   }, [user]);
 
   // Route guard: chỉ học sinh mới vào được trang này
@@ -86,6 +90,9 @@ export default function StudentDashboard() {
         <nav className="dashboard-nav">
           <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
             <User size={20}/> Hồ sơ cá nhân
+          </button>
+          <button className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')}>
+            <Book size={20}/> Lớp đã đăng ký
           </button>
           <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')}>
             <Heart size={20}/> Gia sư đã lưu
@@ -244,6 +251,29 @@ export default function StudentDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {activeTab === 'applications' && (
+          <div className="card glass">
+            <h2 style={{color: '#D94625', marginBottom: '2rem'}}>Lớp đã đăng ký</h2>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+              {applications.length === 0 ? (
+                <p className="text-muted" style={{textAlign: 'center', padding: '2rem'}}>Bạn chưa đăng ký lớp học nào.</p>
+              ) : applications.map((app: any) => (
+                <div key={app.id} style={{border: '1px solid var(--border)', padding: '1rem', borderRadius: 'var(--radius-md)'}}>
+                  <h3 style={{marginBottom: '0.25rem'}}>{app.post_title}</h3>
+                  <p className="text-muted" style={{fontSize: '0.9rem'}}>
+                    Trạng thái: <strong style={{color: app.status === 'accepted' ? '#10B981' : app.status === 'rejected' ? '#EF4444' : '#F59E0B'}}>
+                      {app.status === 'pending' ? 'Đang chờ gia sư duyệt' : app.status === 'accepted' ? 'Đã được duyệt' : 'Đã bị từ chối'}
+                    </strong>
+                  </p>
+                  <Link href={`/tutors/jobs/${app.post_id}`} className="btn btn-outline" style={{marginTop: '0.75rem', display: 'inline-flex', padding: '0.4rem 0.8rem', fontSize: '0.85rem'}}>
+                    Xem lại bài đăng
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

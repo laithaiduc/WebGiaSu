@@ -73,6 +73,16 @@ router.post('/', async (req, res) => {
 
   const result = await createApplication({ post_id: Number(post_id), student_id: authUser.id, student_name: authUser.name });
   const newApp = await query<any[]>('SELECT * FROM applications WHERE id = ?', [result.insertId]);
+
+  // Automated notification message
+  try {
+    const roleName = authUser.role === 'student' ? 'Học sinh' : 'Gia sư';
+    const messageContent = `Chào bạn, ${roleName} ${authUser.name} vừa ứng tuyển vào bài đăng "${post.title}" của bạn. Vui lòng kiểm tra mục "Ứng tuyển nhận được" trong trang quản lý để xem chi tiết và phê duyệt nhé!`;
+    await query('INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)', [authUser.id, post.author_id, messageContent]);
+  } catch (err) {
+    console.error('Failed to send automated message:', err);
+  }
+
   return res.json({ data: newApp[0] || null });
 });
 
@@ -99,6 +109,16 @@ router.put('/:id', async (req, res) => {
   }
 
   await updateApplicationStatus(id, status);
+
+  // Automated notification message back to the applicant
+  try {
+    const statusText = status === 'accepted' ? 'chấp nhận' : 'từ chối';
+    const messageContent = `Chào bạn, yêu cầu ứng tuyển của bạn vào bài đăng "${post.title}" đã bị ${statusText}.`;
+    await query('INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)', [authUser.id, app.student_id, messageContent]);
+  } catch (err) {
+    console.error('Failed to send automated message:', err);
+  }
+
   return res.json({ ok: true });
 });
 

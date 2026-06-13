@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import ComboBox from '@/components/common/ComboBox';
 import './tutor.css';
 import { useAuth } from '@/context/AuthContext';
-import { fetchSavedStudentsForTutor, unsaveStudentProfile, fetchReceivedApplications, updateTutorProfile, fetchTutorById } from '@/lib/api';
+import { fetchSavedStudentsForTutor, unsaveStudentProfile, fetchReceivedApplications, updateTutorProfile, fetchTutorById, updateApplicationStatus } from '@/lib/api';
 
 import TutorReviewsTab from '@/components/reviews/TutorReviewsTab';
 
@@ -84,6 +84,16 @@ export default function TutorDashboard() {
       setSavedStudents((current) => current.filter((s) => s.id !== id));
     } catch {
       alert('Không thể bỏ lưu học sinh.');
+    }
+  };
+
+  const handleUpdateApplication = async (id: number, status: 'accepted' | 'rejected') => {
+    try {
+      await updateApplicationStatus(id, status);
+      setApplications(current => current.map(app => app.id === id ? { ...app, status } : app));
+      alert(`Đã ${status === 'accepted' ? 'chấp nhận' : 'từ chối'} ứng tuyển. Hệ thống đã gửi thông báo cho học sinh.`);
+    } catch {
+      alert('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   };
 
@@ -330,7 +340,19 @@ export default function TutorDashboard() {
               ) : applications.map((app: any) => (
                 <div key={app.id} style={{border: '1px solid var(--border)', padding: '1rem', borderRadius: 'var(--radius-md)'}}>
                   <h3 style={{marginBottom: '0.25rem'}}>{app.post_title}</h3>
-                  <p className="text-muted" style={{fontSize: '0.9rem'}}>Học sinh: <strong>{app.student_name}</strong> — Trạng thái: {app.status}</p>
+                  <p className="text-muted" style={{fontSize: '0.9rem'}}>
+                    Học sinh: <strong>{app.student_name}</strong> — Trạng thái: {app.status === 'pending' ? 'Chờ duyệt' : app.status === 'accepted' ? 'Đã duyệt' : 'Đã từ chối'}
+                  </p>
+                  {app.status === 'pending' && (
+                    <div className="flex-center" style={{gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'flex-start'}}>
+                      <button className="btn btn-primary" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem'}} onClick={() => handleUpdateApplication(app.id, 'accepted')}>
+                        <CheckCircle size={16} /> Duyệt
+                      </button>
+                      <button className="btn btn-outline" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem', borderColor: '#EF4444', color: '#EF4444'}} onClick={() => handleUpdateApplication(app.id, 'rejected')}>
+                        <Trash2 size={16} /> Từ chối
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
