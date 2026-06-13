@@ -6,7 +6,7 @@ export async function getReviewsByTutor(tutorId: number): Promise<any[]> {
   if (reviews.length === 0) return [];
   
   const reviewIds = reviews.map(r => r.id);
-  const comments = await query<any[]>('SELECT * FROM comments WHERE entity_type = "review" AND entity_id IN (?) ORDER BY id ASC', [reviewIds]);
+  const comments = await query<any[]>('SELECT * FROM comments WHERE entity_type = ? AND entity_id IN (?) ORDER BY id ASC', ['review', reviewIds]);
   
   return reviews.map(r => ({
     ...r,
