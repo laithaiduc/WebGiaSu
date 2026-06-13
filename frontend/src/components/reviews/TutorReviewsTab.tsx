@@ -46,9 +46,36 @@ export default function TutorReviewsTab() {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+    <div className="reviews-layout">
+      <style dangerouslySetInnerHTML={{ __html: `
+        .reviews-layout {
+          display: flex;
+          gap: 2rem;
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+        .reviews-sidebar {
+          width: 260px;
+          flex-shrink: 0;
+          background: rgba(249,115,22,0.04);
+          border: 1px solid rgba(249,115,22,0.1);
+          border-radius: 1rem;
+          padding: 1.75rem;
+          box-shadow: 0 4px 20px rgba(249,115,22,0.07);
+        }
+        @media (max-width: 768px) {
+          .reviews-layout {
+            flex-direction: column;
+            gap: 1rem;
+          }
+          .reviews-sidebar {
+            width: 100%;
+          }
+        }
+      `}} />
+      
       {/* Sidebar rating */}
-      <aside style={{ width: '260px', flexShrink: 0, background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.1)', borderRadius: '1rem', padding: '1.75rem', boxShadow: '0 4px 20px rgba(249,115,22,0.07)' }}>
+      <aside className="reviews-sidebar">
         <h3 style={{ color: '#D94625', marginBottom: '1.25rem', fontSize: '1.1rem' }}>Tổng quan đánh giá</h3>
         <div style={{ background: 'rgba(249,115,22,0.06)', padding: '1.5rem', borderRadius: '0.75rem', textAlign: 'center', marginBottom: '1.5rem' }}>
           <div style={{ fontSize: '3rem', color: '#F59E0B', fontWeight: 800, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
