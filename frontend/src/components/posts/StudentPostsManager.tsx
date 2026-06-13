@@ -30,8 +30,6 @@ export default function StudentPostsManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => { loadPosts(); }, []);
-
   const loadPosts = async () => {
     setLoadingPosts(true);
     setError('');
@@ -44,6 +42,8 @@ export default function StudentPostsManager() {
       setLoadingPosts(false);
     }
   };
+
+  useEffect(() => { loadPosts(); }, []);
 
   const handleOpenEdit = (post: any) => {
     setEditingPostId(post.id);
@@ -177,8 +177,8 @@ export default function StudentPostsManager() {
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="posts-container">
+      <div className="posts-header" style={{ marginBottom: '2rem' }}>
         <div>
           <h2 style={{ color: '#D94625', fontSize: '1.6rem', marginBottom: '0.25rem' }}>Quản lý Bài đăng Tìm Gia sư</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Đăng yêu cầu lớp học để gia sư có thể ứng tuyển.</p>
@@ -190,14 +190,14 @@ export default function StudentPostsManager() {
 
       <div className="card glass" style={{ padding: '1.25rem' }}>
         {/* Tabs + Search */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="posts-toolbar" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <button style={tabBtnStyle('all')} onClick={() => setActiveTab('all')}>Tất cả ({posts.length})</button>
             <button style={tabBtnStyle('active')} onClick={() => setActiveTab('active')}>Đang tìm ({posts.filter(p => p?.status === 'Đang tìm gia sư').length})</button>
             <button style={tabBtnStyle('full')} onClick={() => setActiveTab('full')}>Đã đủ người ({posts.filter(p => p?.status === 'Đã đủ người').length})</button>
             <button style={tabBtnStyle('pending')} onClick={() => setActiveTab('pending')}>Chờ duyệt ({posts.filter(p => p?.status === 'Chờ duyệt').length})</button>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--radius-full)', padding: '0.4rem 1rem', width: '220px' }}>
+          <div className="search-box" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--radius-full)', padding: '0.4rem 1rem', width: '220px' }}>
             <Search size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
             <input type="text" placeholder="Tìm kiếm..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.875rem' }} />
@@ -213,8 +213,8 @@ export default function StudentPostsManager() {
               {q ? `Không tìm thấy bài nào khớp "${searchQuery}"` : 'Không có bài đăng nào.'}
             </p>
           ) : filtered.map(post => (
-            <div key={post.id} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <div key={post.id} className="post-item" style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
+              <div className="post-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <div>
                   <span style={{ padding: '0.2rem 0.65rem', borderRadius: '2rem', fontSize: '0.8rem', fontWeight: 600, ...badgeStyle(post.status) }}>
                     {post.status}
@@ -226,7 +226,7 @@ export default function StudentPostsManager() {
                   <button title="Xóa bài" onClick={() => handleDelete(post.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626' }}><Trash2 size={17} /></button>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0.75rem 0', flexWrap: 'wrap' }}>
+              <div className="post-details" style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0.75rem 0', flexWrap: 'wrap' }}>
                 <span><strong>Môn học:</strong> {post.subject}</span>
                 <span><strong>Mức lương:</strong> {post.price}</span>
                 <span><strong>Hình thức:</strong> {post.format}</span>
@@ -251,8 +251,8 @@ export default function StudentPostsManager() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-overlay">
+          <div className="modal-content card" style={{ width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ color: '#D94625' }}>{editingPostId ? 'Sửa bài đăng' : 'Tạo bài đăng Tìm Gia sư'}</h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><XCircle size={24} /></button>
@@ -272,7 +272,7 @@ export default function StudentPostsManager() {
                 />
                 {errors.title && <p style={{ color: '#EF4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>⚠️ {errors.title}</p>}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-grid">
                 <div className="form-group">
                   <label>Môn học <span style={{ color: '#EF4444' }}>*</span></label>
                   <ComboBox
@@ -356,8 +356,8 @@ export default function StudentPostsManager() {
 
       {/* Applicants Modal */}
       {showApplicantsModal && selectedPost && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '520px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div className="modal-overlay">
+          <div className="modal-content card" style={{ width: '100%', maxWidth: '520px', maxHeight: '80vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div>
                 <h2 style={{ color: '#D94625', marginBottom: '0.25rem' }}>Gia sư ứng tuyển</h2>

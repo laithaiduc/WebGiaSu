@@ -33,7 +33,7 @@ export default function RootLayout({
         <AuthProvider>
           <RealtimeProvider>
             <Navbar />
-            <main style={{ paddingTop: '72px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <main className="app-main" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
               {children}
             </main>
           </RealtimeProvider>

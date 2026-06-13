@@ -111,9 +111,9 @@ export default function JobDetailPage() {
         <ArrowLeft size={18} /> Quay lại bảng tin
       </Link>
 
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div className="job-detail-layout">
         {/* Main Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="job-detail-main">
           {/* Class Info */}
           <div className="card glass" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -178,8 +178,8 @@ export default function JobDetailPage() {
         </div>
 
         {/* Sticky Sidebar */}
-        <div style={{ width: '320px', flexShrink: 0 }}>
-          <div className="card glass" style={{ padding: '1.75rem', position: 'sticky', top: '90px' }}>
+        <div className="job-detail-sidebar">
+          <div className="card glass job-detail-sidebar-card" style={{ padding: '1.75rem' }}>
 
             {/* Tutor Info */}
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>

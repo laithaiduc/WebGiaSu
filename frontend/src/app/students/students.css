@@ -208,7 +208,13 @@
   }
 
   .filters-sidebar {
+    width: 100%;
+    position: static;
     padding: 1rem 0;
+  }
+
+  .content-layout {
+    gap: 1rem;
   }
 
   .filter-group {
@@ -217,6 +223,11 @@
 
   .filter-group label {
     font-size: 0.9rem;
+  }
+
+  .results-container {
+    width: 100%;
+    min-width: 0;
   }
 
   .tutor-grid {

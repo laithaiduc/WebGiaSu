@@ -25,6 +25,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  min-width: 0;
 }
 
 html, body {
@@ -33,6 +34,39 @@ html, body {
   background-color: var(--background);
   color: var(--text-main);
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+main {
+  width: 100%;
+  min-height: calc(100vh - 72px);
+}
+
+.app-main {
+  padding-top: 88px;
+}
+
+@media (max-width: 900px) {
+  .app-main {
+    padding-top: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding-top: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding-top: 130px;
+  }
+}
+
+img, picture, video, svg {
+  max-width: 100%;
+  height: auto;
 }
 
 body {

@@ -112,7 +112,7 @@ export default function StudentJobBoard() {
                   <span className="flex-center" style={{gap: '0.25rem', color: '#F59E0B', marginLeft: '0.5rem'}}><Star size={14} fill="currentColor"/> {(job.tutorRating ?? 0).toFixed(1)}</span>
                 </div>
                 
-                <div className="job-details" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', background: 'var(--background)', padding: '1rem', borderRadius: 'var(--radius-sm)'}}>
+                <div className="job-details">
                   <div><strong className="text-muted">Môn học:</strong> {job.subject}</div>
                   <div><strong className="text-muted">Học phí:</strong> {job.price}</div>
                   <div><strong className="text-muted">Hình thức:</strong> {job.format}</div>

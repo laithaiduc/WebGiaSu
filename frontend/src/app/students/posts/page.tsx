@@ -1,4 +1,5 @@
 "use client";
+import './posts.css';
 import StudentPostsManager from '@/components/posts/StudentPostsManager';
 
 export default function StudentPostsPage() {
