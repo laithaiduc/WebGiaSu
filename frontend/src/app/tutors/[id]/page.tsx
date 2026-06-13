@@ -275,7 +275,7 @@ export default function TutorProfilePublic() {
                   : 'Thỏa thuận'}
               </h2>
               {tutor.price_per_hour > 0 && (
-                <span className="profile-price-unit">/buổi</span>
+                <span className="profile-price-unit">/giờ</span>
               )}
             </div>
 
@@ -295,15 +295,17 @@ export default function TutorProfilePublic() {
               Liên hệ / Đặt lớp ngay
             </button>
 
-            {/* CTA – save */}
-            <button
-              className={`profile-action-btn outline ${isSaved ? 'saved' : ''}`}
-              onClick={handleToggleSave}
-              disabled={savingState}
-            >
-              <Heart size={18} fill={isSaved ? '#EF4444' : 'none'} color={isSaved ? '#EF4444' : 'currentColor'} />
-              {isSaved ? 'Đã lưu hồ sơ' : 'Lưu hồ sơ'}
-            </button>
+            {/* CTA – save: chỉ hiện cho học sinh */}
+            {(!user || user.role === 'student') && (
+              <button
+                className={`profile-action-btn outline ${isSaved ? 'saved' : ''}`}
+                onClick={handleToggleSave}
+                disabled={savingState}
+              >
+                <Heart size={18} fill={isSaved ? '#EF4444' : 'none'} color={isSaved ? '#EF4444' : 'currentColor'} />
+                {isSaved ? 'Đã lưu hồ sơ' : 'Lưu hồ sơ'}
+              </button>
+            )}
 
             <hr className="profile-divider" />
 

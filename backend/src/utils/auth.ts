@@ -28,10 +28,7 @@ export function hashPassword(password: string) {
 }
 
 export async function verifyPassword(password: string, storedPassword: string) {
-  if (storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$')) {
-    return bcrypt.compare(password, storedPassword);
-  }
-  return password === storedPassword;
+  return bcrypt.compare(password, storedPassword);
 }
 
 export function signAccessToken(payload: TokenPayload) {

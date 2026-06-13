@@ -41,6 +41,19 @@ export async function fetchThreads(userId: number) {
     [userId, userId]
   );
 
+  // Đếm tổng số tin chưa đọc cho mỗi partner
+  const unreadCounts = await query<any[]>(
+    `SELECT sender_id AS partner_id, COUNT(*) AS unread_count
+     FROM messages
+     WHERE receiver_id = ? AND is_read = 0
+     GROUP BY sender_id`,
+    [userId]
+  );
+  const unreadMap = new Map<number, number>();
+  for (const row of unreadCounts) {
+    unreadMap.set(Number(row.partner_id), Number(row.unread_count));
+  }
+
   const threads = new Map<number, any>();
   for (const row of rows) {
     const partnerId = row.sender_id === userId ? row.receiver_id : row.sender_id;
@@ -54,7 +67,7 @@ export async function fetchThreads(userId: number) {
       partner_role: partnerIsSender ? row.sender_role : row.receiver_role,
       last_message: row.content,
       last_at: row.created_at,
-      unread: row.receiver_id === userId && !row.is_read,
+      unread_count: unreadMap.get(partnerId) || 0,
       is_outgoing: row.sender_id === userId,
     });
   }

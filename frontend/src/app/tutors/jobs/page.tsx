@@ -1,11 +1,13 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Filter, MapPin, Briefcase, Clock } from 'lucide-react';
+import { Filter, MapPin, Briefcase, Clock, Send, CheckCircle } from 'lucide-react';
 import './jobs.css';
 import ComboBox from '@/components/common/ComboBox';
 import { SUBJECTS, FORMATS, GRADES } from '@/lib/constants';
-import { fetchPosts } from '@/lib/api';
+import { fetchPosts, applyToPost } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 type JobItem = {
   id: number;
@@ -24,6 +26,8 @@ type JobItem = {
 };
 
 export default function JobBoard() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [allJobs, setAllJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState("");
@@ -31,6 +35,8 @@ export default function JobBoard() {
   const [selectedFormat, setSelectedFormat] = useState("");
   const [sortBy, setSortBy] = useState("Mới đăng nhất");
   const [appliedFilters, setAppliedFilters] = useState({ subject: "", grade: "", format: "" });
+  // Map postId -> 'idle' | 'loading' | 'done'
+  const [applyState, setApplyState] = useState<Record<number, string>>({});
 
   useEffect(() => {
     const loadStudentJobs = async () => {
@@ -67,6 +73,26 @@ export default function JobBoard() {
 
   const handleApply = () => {
     setAppliedFilters({ subject: selectedSubject, grade: selectedGrade, format: selectedFormat });
+  };
+
+  const handleApplyJob = async (jobId: number) => {
+    if (!user) {
+      alert('Bạn cần đăng nhập để ứng tuyển!');
+      router.push('/login');
+      return;
+    }
+    if (user.role !== 'tutor') {
+      alert('Chỉ gia sư mới có thể ứng tuyển vào lớp học này.');
+      return;
+    }
+    setApplyState(prev => ({ ...prev, [jobId]: 'loading' }));
+    try {
+      await applyToPost(jobId);
+      setApplyState(prev => ({ ...prev, [jobId]: 'done' }));
+    } catch (err: any) {
+      alert(err.message || 'Không thể ứng tuyển. Vui lòng thử lại.');
+      setApplyState(prev => ({ ...prev, [jobId]: 'idle' }));
+    }
   };
 
   const handleReset = () => {
@@ -151,7 +177,23 @@ export default function JobBoard() {
                     <span className="text-muted" style={{ fontSize: '0.85rem' }}>
                       Đăng bởi: <Link href={`/students/${job.authorId}`} style={{ fontWeight: 600, color: 'var(--primary)', textDecoration: 'none' }}>{job.authorName}</Link> - {job.postedAt}
                     </span>
-                    <Link href={`/students/${job.authorId}`} className="btn btn-primary flex-center" style={{ gap: '0.5rem', textDecoration: 'none' }}>Xem chi tiết</Link>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <Link href={`/tutors/jobs/${job.id}`} className="btn btn-outline" style={{ textDecoration: 'none', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Xem chi tiết</Link>
+                      {applyState[job.id] === 'done' ? (
+                        <button className="btn btn-outline" disabled style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10B981', borderColor: '#10B981', padding: '0.5rem 1rem' }}>
+                          <CheckCircle size={15} /> Đã ứng tuyển
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-primary"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                          onClick={() => handleApplyJob(job.id)}
+                          disabled={applyState[job.id] === 'loading'}
+                        >
+                          {applyState[job.id] === 'loading' ? 'Đang gửi...' : (<><Send size={15} /> Ứng tuyển ngay</>)}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

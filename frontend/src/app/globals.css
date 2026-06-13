@@ -268,3 +268,12 @@ select.input-field {
     background-position: right 0.5rem center;
   }
 }
+
+/* Validation styling */
+.input-error {
+  border-color: #EF4444 !important;
+}
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
