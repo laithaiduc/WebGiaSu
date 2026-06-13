@@ -402,8 +402,8 @@ input:checked + .slider:before {
     padding: 0.5rem 0 !important;
     margin-bottom: 1.5rem;
     position: sticky !important;
-    top: 76px; /* Sticks right below the fixed mobile navbar (around 56px to 76px tall) */
-    z-index: 100;
+    top: 68px; /* Sticks right below the fixed mobile navbar */
+    z-index: 90;
     border-bottom: 1.5px solid var(--border) !important;
     width: 100%;
   }
