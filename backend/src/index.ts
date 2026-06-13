@@ -24,7 +24,11 @@ const app = express();
 app.set('trust proxy', 1); // Bắt buộc khi dùng cookie secure + samesite none đằng sau proxy (Railway/Vercel)
 const port = Number(process.env.PORT || 4000);
 
-app.use(cors({ origin: frontendOrigin, credentials: true }));
+app.use(cors({ 
+  origin: frontendOrigin, 
+  credentials: true,
+  exposedHeaders: ['X-New-Access-Token', 'X-New-Refresh-Token']
+}));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/', (_req, res) => {

@@ -69,7 +69,11 @@ router.post('/register', async (req, res) => {
   sendAccessToken(res, accessToken);
   sendRefreshToken(res, refreshToken);
 
-  return res.json({ user: sanitizeUser({ ...userPayload, phone: '', gender: '', avatar: '' }) });
+  return res.json({ 
+    user: sanitizeUser({ ...userPayload, phone: '', gender: '', avatar: '' }),
+    accessToken,
+    refreshToken
+  });
 });
 
 router.post('/login', async (req, res) => {
@@ -108,7 +112,11 @@ router.post('/login', async (req, res) => {
   sendAccessToken(res, accessToken);
   sendRefreshToken(res, refreshToken);
 
-  return res.json({ user: sanitizeUser(user) });
+  return res.json({ 
+    user: sanitizeUser(user),
+    accessToken,
+    refreshToken
+  });
 });
 
 router.post('/logout', async (req, res) => {
@@ -156,7 +164,11 @@ router.post('/refresh', async (req, res) => {
   sendAccessToken(res, newAccessToken);
   sendRefreshToken(res, newRefreshToken);
 
-  return res.json({ user: sanitizeUser(user) });
+  return res.json({ 
+    user: sanitizeUser(user),
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken
+  });
 });
 
 router.get('/me', async (req, res) => {

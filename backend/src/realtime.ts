@@ -14,7 +14,8 @@ export function initRealtime(server: HttpServer) {
 
   io.use(async (socket, next) => {
     const cookieHeader = socket.handshake.headers.cookie;
-    const user = await authenticateFromCookieHeader(cookieHeader);
+    const rawToken = socket.handshake.auth?.token || socket.handshake.query?.token;
+    const user = await authenticateFromCookieHeader(cookieHeader, rawToken as string);
     if (!user) {
       return next(new Error('Unauthorized'));
     }

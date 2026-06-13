@@ -71,12 +71,23 @@ export function parseCookies(cookieHeader?: string) {
 
 export function getAccessTokenFromRequest(req: Request) {
   const cookies = parseCookies(req.headers.cookie);
-  return cookies.accessToken || null;
+  let token = cookies.accessToken || null;
+  if (!token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    }
+  }
+  return token;
 }
 
 export function getRefreshTokenFromRequest(req: Request) {
   const cookies = parseCookies(req.headers.cookie);
-  return cookies.refreshToken || null;
+  let token = cookies.refreshToken || null;
+  if (!token && req.headers['x-refresh-token']) {
+    token = req.headers['x-refresh-token'] as string;
+  }
+  return token;
 }
 
 export function getAccessTokenCookieOptions() {
@@ -154,12 +165,16 @@ export async function refreshTokens(req: Request, res: Response): Promise<TokenP
   sendAccessToken(res, newAccessToken);
   sendRefreshToken(res, newRefreshToken);
 
+  // Send new tokens via headers as fallback for clients that don't support cookies
+  res.setHeader('X-New-Access-Token', newAccessToken);
+  res.setHeader('X-New-Refresh-Token', newRefreshToken);
+
   return tokenPayload;
 }
 
-export async function authenticateFromCookieHeader(cookieHeader?: string): Promise<TokenPayload | null> {
+export async function authenticateFromCookieHeader(cookieHeader?: string, rawToken?: string): Promise<TokenPayload | null> {
   const cookies = parseCookies(cookieHeader);
-  const accessToken = cookies.accessToken;
+  const accessToken = cookies.accessToken || rawToken;
   if (accessToken) {
     try {
       return verifyAccessToken(accessToken);

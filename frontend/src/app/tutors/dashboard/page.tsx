@@ -76,7 +76,7 @@ export default function TutorDashboard() {
     } else if (user && user.role !== 'tutor') {
       router.replace('/');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
   const handleUnsave = async (id: number) => {
     try {

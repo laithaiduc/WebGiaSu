@@ -8,7 +8,10 @@ export function connectSocket() {
   if (typeof window === 'undefined') return null;
   if (socket?.connected) return socket;
 
+  const token = localStorage.getItem('accessToken');
+
   if (socket) {
+    socket.auth = { token };
     socket.connect();
     return socket;
   }
@@ -20,6 +23,9 @@ export function connectSocket() {
     reconnection: true,
     reconnectionAttempts: 10,
     reconnectionDelay: 1000,
+    auth: {
+      token,
+    },
   });
 
   return socket;

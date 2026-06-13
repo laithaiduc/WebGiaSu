@@ -6,13 +6,37 @@ const jsonHeaders = {
 
 async function request(path: string, options: RequestInit = {}) {
   let res: Response;
+  
+  const headers: Record<string, string> = {
+    ...options.headers as any,
+  };
+
+  if (typeof window !== 'undefined') {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      headers['x-refresh-token'] = refreshToken;
+    }
+  }
+
   try {
     res = await fetch(`${BACKEND_URL}${path}`, {
       credentials: 'include',
       ...options,
+      headers,
     });
   } catch (err: any) {
     throw new Error(`Network error when fetching ${BACKEND_URL}${path}: ${err.message}`);
+  }
+
+  if (typeof window !== 'undefined') {
+    const newAccess = res.headers.get('X-New-Access-Token');
+    const newRefresh = res.headers.get('X-New-Refresh-Token');
+    if (newAccess) localStorage.setItem('accessToken', newAccess);
+    if (newRefresh) localStorage.setItem('refreshToken', newRefresh);
   }
 
   let data: any = null;
@@ -22,6 +46,15 @@ async function request(path: string, options: RequestInit = {}) {
     // non-json response
     if (!res.ok) throw new Error(`Server error ${res.status} when fetching ${path}`);
     return null;
+  }
+
+  if (data && typeof window !== 'undefined') {
+    if (data.accessToken) {
+      localStorage.setItem('accessToken', data.accessToken);
+    }
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
   }
 
   if (!res.ok) {
@@ -48,6 +81,10 @@ export async function loginUser(payload: { email: string; password: string; }) {
 }
 
 export async function logoutUser() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
   return request('/auth/logout', {
     method: 'POST',
     headers: jsonHeaders,
