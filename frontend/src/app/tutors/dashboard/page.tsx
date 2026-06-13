@@ -108,21 +108,25 @@ export default function TutorDashboard() {
           </div>
         </div>
         
-        <nav className="dashboard-nav" style={{marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-          <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')} style={{width: '100%', background: activeTab === 'profile' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem'}}>
+        <nav className="dashboard-nav">
+          <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
             <User size={20}/> Hồ sơ cá nhân
           </button>
-          <button className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')} style={{width: '100%', background: activeTab === 'applications' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem'}}>
+          <button className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')}>
             <Briefcase size={20}/> Ứng tuyển nhận được
           </button>
-          <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')} style={{width: '100%', background: activeTab === 'saved' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+          <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')}>
             <Heart size={20}/> Học sinh đã lưu
           </button>
-          <button className={`nav-item ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')} style={{width: '100%', background: activeTab === 'reviews' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem'}}>
+          <button className={`nav-item ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>
             <Star size={20}/> Đánh giá của tôi
           </button>
-          <a href="#" className="nav-item" style={{textDecoration: 'none'}}><Settings size={20}/> Cài đặt tài khoản</a>
-          <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto', textDecoration: 'none'}}><LogOut size={20}/> Đăng xuất</a>
+          <Link href="/tutors/dashboard" className="nav-item">
+            <Settings size={20}/> Cài đặt tài khoản
+          </Link>
+          <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto'}}>
+            <LogOut size={20}/> Đăng xuất
+          </a>
         </nav>
       </aside>
 
@@ -349,24 +353,23 @@ export default function TutorDashboard() {
             ) : (
               <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                 {savedStudents.map((student) => (
-                  <div key={student.id} style={{border: '1px solid var(--border)', padding: '1.25rem', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'var(--transition)'}} className="hover-shadow">
-                    <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
-                      <div style={{width: '50px', height: '50px', borderRadius: '50%', background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 'bold'}}>
+                  <div key={student.id} className="dashboard-item-card hover-shadow">
+                    <div className="dashboard-item-info">
+                      <div className="dashboard-item-avatar">
                         {student.name.charAt(0)}
                       </div>
-                      <div>
-                        <h3 style={{fontSize: '1.1rem', marginBottom: '0.25rem', color: 'var(--text-main)'}}>{student.name}</h3>
-                        <p className="text-muted" style={{fontSize: '0.9rem', display: 'flex', gap: '1rem', alignItems: 'center'}}>
-                          <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Mail size={14} /> {student.email}</span>
-                          {student.phone && <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Phone size={14} /> {student.phone}</span>}
-                        </p>
+                      <div className="dashboard-item-details">
+                        <h3 className="dashboard-item-name">{student.name}</h3>
+                        <div className="dashboard-item-meta">
+                          <span className="meta-span"><Mail size={14} /> {student.email}</span>
+                          {student.phone && <span className="meta-span"><Phone size={14} /> {student.phone}</span>}
+                        </div>
                       </div>
                     </div>
-                    <div style={{display: 'flex', gap: '0.5rem'}}>
-                      <Link href={`/students/${student.id}`} className="btn btn-outline" style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}}>Xem Profile</Link>
+                    <div className="dashboard-item-actions">
+                      <Link href={`/students/${student.id}`} className="btn btn-outline dashboard-btn">Xem Profile</Link>
                       <button 
-                        className="btn" 
-                        style={{padding: '0.5rem 1rem', fontSize: '0.9rem', border: '1px solid #EF4444', color: '#EF4444', background: 'transparent'}}
+                        className="btn btn-danger-outline dashboard-btn"
                         onClick={() => handleUnsave(student.id)}
                       >
                         <Trash2 size={16} /> Bỏ lưu

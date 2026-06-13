@@ -83,15 +83,19 @@ export default function StudentDashboard() {
           </div>
         </div>
         
-        <nav className="dashboard-nav" style={{marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-          <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')} style={{width: '100%', background: activeTab === 'profile' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+        <nav className="dashboard-nav">
+          <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
             <User size={20}/> Hồ sơ cá nhân
           </button>
-          <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')} style={{width: '100%', background: activeTab === 'saved' ? 'rgba(249, 115, 22, 0.1)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+          <button className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveTab('saved')}>
             <Heart size={20}/> Gia sư đã lưu
           </button>
-          <a href="#" className="nav-item" style={{textDecoration: 'none'}}><Settings size={20}/> Cài đặt tài khoản</a>
-          <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto', textDecoration: 'none'}}><LogOut size={20}/> Đăng xuất</a>
+          <Link href="/students/dashboard" className="nav-item">
+            <Settings size={20}/> Cài đặt tài khoản
+          </Link>
+          <a href="#" onClick={handleLogout} className="nav-item text-muted" style={{marginTop: 'auto'}}>
+            <LogOut size={20}/> Đăng xuất
+          </a>
         </nav>
       </aside>
 
@@ -255,26 +259,26 @@ export default function StudentDashboard() {
                 </div>
               ) : (
                 savedTutors.map(tutor => (
-                  <div key={tutor.id} className="flex-between" style={{padding: '1.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', background: 'var(--background)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)'}}>
-                    <div className="flex-center" style={{gap: '1.5rem'}}>
+                  <div key={tutor.id} className="dashboard-item-card hover-shadow">
+                    <div className="dashboard-item-info">
                       {tutor.avatar ? (
-                        <img src={tutor.avatar} alt={tutor.name} style={{width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover'}} />
+                        <img src={tutor.avatar} alt={tutor.name} className="dashboard-item-avatar-img" />
                       ) : (
-                        <div style={{width: '50px', height: '50px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.25rem'}}>{tutor.name?.charAt(0).toUpperCase()}</div>
+                        <div className="dashboard-item-avatar tutor-avatar-color">{tutor.name?.charAt(0).toUpperCase()}</div>
                       )}
-                      <div>
-                        <h3 style={{marginBottom: '0.25rem', color: 'var(--text-main)', fontSize: '1.2rem'}}>{tutor.name}</h3>
-                        <p className="text-muted" style={{fontSize: '0.9rem', marginBottom: '0.4rem'}}>{tutor.subjects || tutor.location || 'Gia sư'}</p>
-                        <div className="flex-center" style={{gap: '0.25rem', color: '#F59E0B', fontSize: '0.85rem', fontWeight: 600}}>
+                      <div className="dashboard-item-details">
+                        <h3 className="dashboard-item-name">{tutor.name}</h3>
+                        <p className="text-muted dashboard-item-sub">{tutor.subjects || tutor.location || 'Gia sư'}</p>
+                        <div className="flex-center" style={{gap: '0.25rem', color: '#F59E0B', fontSize: '0.85rem', fontWeight: 600, justifyContent: 'flex-start'}}>
                           <Star fill="currentColor" size={14} /> {Number(tutor.rating ?? 0).toFixed(1)}
                         </div>
                       </div>
                     </div>
-                    <div className="flex-center" style={{gap: '1rem'}}>
-                      <button className="btn btn-outline flex-center" style={{gap: '0.5rem', color: '#EF4444', borderColor: 'rgba(239, 68, 68, 0.3)', padding: '0.5rem 1rem'}} onClick={() => handleUnsave(tutor.id)}>
+                    <div className="dashboard-item-actions">
+                      <button className="btn btn-danger-outline dashboard-btn" onClick={() => handleUnsave(tutor.id)}>
                          Bỏ lưu
                       </button>
-                      <Link href={`/tutors/${tutor.id}`} className="btn btn-primary" style={{padding: '0.5rem 1.5rem', textDecoration: 'none'}}>Xem Profile</Link>
+                      <Link href={`/tutors/${tutor.id}`} className="btn btn-primary dashboard-btn">Xem Profile</Link>
                     </div>
                   </div>
                 ))
