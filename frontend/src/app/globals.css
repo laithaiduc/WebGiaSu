@@ -29,7 +29,6 @@
 }
 
 html, body {
-  min-height: 100%;
   font-family: var(--font-inter), 'Quicksand', sans-serif;
   background-color: var(--background);
   color: var(--text-main);
@@ -70,8 +69,7 @@ img, picture, video, svg {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 a {
