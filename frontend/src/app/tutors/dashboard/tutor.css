@@ -394,7 +394,6 @@ input:checked + .slider:before {
   background: rgba(239, 68, 68, 0.08);
 }
 
-/* Responsive styles for dashboards */
 @media (max-width: 768px) {
   .dashboard-sidebar {
     background: var(--background) !important;
@@ -403,7 +402,7 @@ input:checked + .slider:before {
     padding: 0.5rem 0 !important;
     margin-bottom: 1.5rem;
     position: sticky !important;
-    top: 55px; /* Sticks right below the fixed mobile navbar */
+    top: 76px; /* Sticks right below the fixed mobile navbar (around 56px to 76px tall) */
     z-index: 100;
     border-bottom: 1.5px solid var(--border) !important;
     width: 100%;
