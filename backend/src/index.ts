@@ -18,10 +18,12 @@ import { query } from './db';
 
 dotenv.config();
 
+const frontendOrigin = process.env.FRONTEND_URL || process.env.FRONTEND_ORIGIN || true;
+
 const app = express();
 const port = Number(process.env.PORT || 4000);
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: frontendOrigin, credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/', (_req, res) => {

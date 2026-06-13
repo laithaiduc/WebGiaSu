@@ -5,8 +5,8 @@ import { query } from '../db';
 import type { User } from '../types';
 
 const {
-  JWT_SECRET = 'change_this_secret',
-  REFRESH_TOKEN_SECRET = 'change_this_refresh_secret',
+  JWT_SECRET = 'HIHIH1233!@#$%^&*()_+',
+  REFRESH_TOKEN_SECRET = 'QNVOAIUTTTRVPACPOWE82387645412!@#$%^&&*()',
   ACCESS_TOKEN_EXPIRES_IN = '15m',
   REFRESH_TOKEN_EXPIRES_IN = '7d',
   NODE_ENV = 'development',
@@ -14,7 +14,14 @@ const {
 const jwtSecret: jwt.Secret = JWT_SECRET as jwt.Secret;
 const refreshSecret: jwt.Secret = REFRESH_TOKEN_SECRET as jwt.Secret;
 
-const secure = NODE_ENV === 'production';
+const secure = NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true';
+const sameSite = NODE_ENV === 'production' || process.env.FORCE_SAMESITE_NONE === 'true' ? 'none' as const : 'lax' as const;
+const cookieBaseOptions = {
+  httpOnly: true,
+  secure,
+  sameSite,
+  path: '/',
+};
 
 export type TokenPayload = {
   id: number;
@@ -70,21 +77,15 @@ export function getRefreshTokenFromRequest(req: Request) {
 
 export function getAccessTokenCookieOptions() {
   return {
-    httpOnly: true,
-    secure,
-    sameSite: 'lax' as const,
+    ...cookieBaseOptions,
     maxAge: 1000 * 60 * 15,
-    path: '/',
   };
 }
 
 export function getRefreshTokenCookieOptions() {
   return {
-    httpOnly: true,
-    secure,
-    sameSite: 'lax' as const,
+    ...cookieBaseOptions,
     maxAge: 1000 * 60 * 60 * 24 * 7,
-    path: '/',
   };
 }
 
@@ -97,8 +98,8 @@ export function sendRefreshToken(res: Response, token: string) {
 }
 
 export function clearAuthCookies(res: Response) {
-  res.clearCookie('accessToken', { path: '/' });
-  res.clearCookie('refreshToken', { path: '/' });
+  res.clearCookie('accessToken', cookieBaseOptions);
+  res.clearCookie('refreshToken', cookieBaseOptions);
 }
 
 export async function getUserById(id: number): Promise<User | null> {

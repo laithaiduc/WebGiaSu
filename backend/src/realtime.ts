@@ -7,7 +7,7 @@ let io: Server | null = null;
 export function initRealtime(server: HttpServer) {
   io = new Server(server, {
     cors: {
-      origin: true,
+      origin: process.env.FRONTEND_URL || process.env.FRONTEND_ORIGIN || true,
       credentials: true,
     },
   });
