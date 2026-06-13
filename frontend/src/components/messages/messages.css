@@ -368,6 +368,18 @@
 }
 .messages-send-btn:active { transform: scale(0.95); }
 
+.mobile-back-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 0;
+  margin-right: 0.25rem;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ════════════════════
    RESPONSIVE
    ════════════════════ */
@@ -390,14 +402,27 @@
   }
 
   .messages-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 200px 1fr;
+    display: flex;
+    flex-direction: column;
     border-radius: 0.75rem 0.75rem 0 0;
   }
 
   .messages-sidebar {
     border-right: none;
     border-bottom: 1px solid rgba(253, 186, 116, 0.25);
+    flex: 1; /* Make it take full height when visible */
+  }
+
+  .messages-chat {
+    flex: 1;
+  }
+
+  .hidden-on-mobile {
+    display: none !important;
+  }
+
+  .mobile-back-btn {
+    display: flex;
   }
 
   .messages-bubble { max-width: 80%; }
@@ -409,7 +434,7 @@
   }
 
   .messages-layout {
-    grid-template-rows: 180px 1fr;
+    /* Kept empty as flex handles it now */
   }
 
   .messages-bubble {

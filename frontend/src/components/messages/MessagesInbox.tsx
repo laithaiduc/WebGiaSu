@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 import { useSearchParams } from 'next/navigation';
 
-import { Send, MessageCircle, User, Wifi, WifiOff } from 'lucide-react';
+import { Send, MessageCircle, User, Wifi, WifiOff, ChevronLeft } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
 
@@ -486,7 +486,7 @@ function MessagesInboxContent({ profileBasePath }: { profileBasePath: 'tutors' |
 
       <div className="messages-layout">
 
-        <aside className="messages-sidebar">
+        <aside className={`messages-sidebar ${selectedId ? 'hidden-on-mobile' : ''}`}>
 
           <div className="messages-sidebar-header">
 
@@ -574,7 +574,7 @@ function MessagesInboxContent({ profileBasePath }: { profileBasePath: 'tutors' |
 
 
 
-        <main className="messages-chat">
+        <main className={`messages-chat ${!selectedId ? 'hidden-on-mobile' : ''}`}>
 
           {!selectedId ? (
 
@@ -593,6 +593,12 @@ function MessagesInboxContent({ profileBasePath }: { profileBasePath: 'tutors' |
               <div className="messages-chat-header">
 
                 <div className="flex-center" style={{ gap: '0.75rem' }}>
+
+                  <button className="mobile-back-btn" onClick={() => setSelectedId(null)}>
+
+                    <ChevronLeft size={24} />
+
+                  </button>
 
                   {selectedThread?.partner_avatar ? (
 
