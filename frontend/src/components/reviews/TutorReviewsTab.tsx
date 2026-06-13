@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Star, MessageSquare, Send } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { fetchReviews } from '@/lib/api';
+import { fetchReviews, postComment } from '@/lib/api';
 
 export default function TutorReviewsTab() {
   const { user } = useAuth();
@@ -31,13 +31,18 @@ export default function TutorReviewsTab() {
     pct: totalReviews > 0 ? Math.round((reviews.filter(r => r.stars === s).length / totalReviews) * 100) : 0,
   }));
 
-  const handleSendReply = (id: number) => {
+  const handleSendReply = async (id: number) => {
     if (!replyText.trim()) return;
-    setReviews(reviews.map(r =>
-      r.id === id ? { ...r, replies: [...(r.replies || []), replyText] } : r
-    ));
-    setReplyingTo(null);
-    setReplyText('');
+    try {
+      await postComment({ entity_type: 'review', entity_id: id, content: replyText });
+      setReviews(reviews.map(r =>
+        r.id === id ? { ...r, replies: [...(r.replies || []), replyText] } : r
+      ));
+      setReplyingTo(null);
+      setReplyText('');
+    } catch {
+      alert('Không thể gửi phản hồi. Vui lòng thử lại.');
+    }
   };
 
   return (

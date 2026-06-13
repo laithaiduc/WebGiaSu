@@ -254,6 +254,12 @@ export default function TutorProfilePublic() {
                     {review.content && (
                       <p className="review-content">{review.content}</p>
                     )}
+                    {review.replies?.map((reply: string, ri: number) => (
+                      <div key={ri} style={{ marginTop: '0.75rem', background: '#F9FAFB', padding: '0.75rem 1rem', borderRadius: '0.5rem', borderLeft: '3px solid var(--primary)' }}>
+                        <p style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.85rem', marginBottom: '0.2rem' }}>Phản hồi từ gia sư</p>
+                        <p style={{ color: 'var(--text-muted)', lineHeight: 1.5, fontSize: '0.9rem' }}>{reply}</p>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
